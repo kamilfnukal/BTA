@@ -1,9 +1,12 @@
+import { NextPage } from 'next'
 import { Button } from '../components/atoms'
 
-export default function Home() {
+const LandingPage: NextPage = () => {
   return (
     <div className="text-red-700">
       <Button label="Label" onClick={() => console.log('A')} />
     </div>
   )
 }
+
+export default LandingPage
