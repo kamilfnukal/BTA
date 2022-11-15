@@ -1,7 +1,14 @@
-type ButtonProps = {}
-
-const Button: React.FC<ButtonProps> = () => {
-  return <button className="btn" />
+type ButtonProps = {
+  label: string
+  onClick: () => any
 }
 
-export default Button
+const Button: React.FC<ButtonProps> = ({ onClick, label }) => {
+  return (
+    <button className="btn" onClick={onClick}>
+      {label}
+    </button>
+  )
+}
+
+export { Button }
