@@ -1,8 +1,10 @@
 import type { AppProps } from 'next/app'
+import { SessionProvider } from 'next-auth/react'
 import Head from 'next/head'
 import '../styles/globals.css'
+import { Session } from 'next-auth'
 
-const App = ({ Component, pageProps }: AppProps) => {
+const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {
   return (
     <>
       <Head>
@@ -13,7 +15,9 @@ const App = ({ Component, pageProps }: AppProps) => {
           rel="stylesheet"
         />
       </Head>
-      <Component {...pageProps} />
+      <SessionProvider session={session}>
+        <Component {...pageProps} />
+      </SessionProvider>
     </>
   )
 }

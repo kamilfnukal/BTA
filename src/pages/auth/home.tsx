@@ -1,11 +1,6 @@
 import { NextPage } from 'next'
+import { HomeModule, ProtectedModule } from '../../modules'
 
-const HomePage: NextPage = () => {
-  return (
-    <div className="">
-      <h1 className="text-3xl">Homepage</h1>
-    </div>
-  )
-}
+const HomePage: NextPage = () => <ProtectedModule Module={HomeModule} />
 
 export default HomePage
