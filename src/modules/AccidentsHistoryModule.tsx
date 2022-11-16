@@ -1,9 +1,14 @@
-import { useSession } from 'next-auth/react'
+import { useAuth } from '../hooks/auth'
+import { BrnoBikeAccidentsResponse } from '../types/api'
 
-const AccidentsHistoryModule: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-  // TODO: create own useUser hook
-  const { data } = useSession()
+type Props = {
+  data: BrnoBikeAccidentsResponse
+}
 
+const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
+  const { isLoading, user } = useAuth()
+
+  console.log(data)
   return (
     <div>
       {isLoading ? (
@@ -11,7 +16,7 @@ const AccidentsHistoryModule: React.FC<{ isLoading: boolean }> = ({ isLoading })
       ) : (
         <div>
           <h1 className="text-3xl">Accidents history module - Authenticated user</h1>
-          <h2 className="text-xl">User - {data?.user?.name}</h2>
+          <h2 className="text-xl">User - {user.name}</h2>
         </div>
       )}
     </div>

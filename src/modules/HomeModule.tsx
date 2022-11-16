@@ -1,8 +1,7 @@
-import { useSession } from 'next-auth/react'
+import { useAuth } from '../hooks/auth'
 
-const HomeModule: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-  // TODO: create own useUser hook
-  const { data } = useSession()
+const HomeModule: React.FC = () => {
+  const { isLoading, user } = useAuth()
 
   return (
     <div>
@@ -11,7 +10,7 @@ const HomeModule: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
       ) : (
         <div>
           <h1 className="text-3xl">Home module - Authenticated user</h1>
-          <h2 className="text-xl">User - {data?.user?.name}</h2>
+          <h2 className="text-xl">User - {user.name}</h2>
         </div>
       )}
     </div>

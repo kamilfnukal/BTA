@@ -1,12 +1,8 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { FunctionComponent, useEffect } from 'react'
+import React, { PropsWithChildren, useEffect } from 'react'
 
-type ProtectedModuleProps = {
-  Module: FunctionComponent<{ isLoading: boolean }>
-}
-
-const ProtectedModule: React.FC<ProtectedModuleProps> = ({ Module }) => {
+const ProtectedModule: React.FC<PropsWithChildren> = ({ children }) => {
   const { status } = useSession()
   const router = useRouter()
 
@@ -14,9 +10,8 @@ const ProtectedModule: React.FC<ProtectedModuleProps> = ({ Module }) => {
     if (status === 'unauthenticated') router.replace('/')
   }, [status])
 
-  const isLoading = status === 'loading'
-
-  return <Module isLoading={isLoading} />
+  // Add base auth layout here
+  return <>{children}</>
 }
 
 export { ProtectedModule }

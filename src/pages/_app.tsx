@@ -3,10 +3,13 @@ import { SessionProvider } from 'next-auth/react'
 import Head from 'next/head'
 import '../styles/globals.css'
 import { Session } from 'next-auth'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
@@ -18,7 +21,7 @@ const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ ses
       <SessionProvider session={session}>
         <Component {...pageProps} />
       </SessionProvider>
-    </>
+    </QueryClientProvider>
   )
 }
 
