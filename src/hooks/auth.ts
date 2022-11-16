@@ -5,7 +5,7 @@ export const useAuth = () => {
   const { data, status } = useSession()
 
   const isLoading = status === 'loading'
-  const user = isLoading ? null : data!.user
+  const user = isLoading ? null : data?.user
 
   return {
     isLoading,
