@@ -32,10 +32,17 @@ const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
             </label>
             <ul tabIndex={0} className="dropdown-content menu p-2 mt-2 shadow bg-base-100 rounded-box w-52">
               <li>
-                <Link href="/auth/profile">Nastavení</Link>
+                <Link href="/auth/profile" className="hover:bg-lightpurple/50 focus:bg-lightpurple focus:text-black">
+                  Nastavení
+                </Link>
               </li>
               <li className="text-red-800">
-                <button onClick={() => signOut()}>Odhlásit se</button>
+                <button
+                  onClick={() => signOut()}
+                  className="hover:bg-lightpurple/50 focus:bg-lightpurple focus:text-black"
+                >
+                  Odhlásit se
+                </button>
               </li>
             </ul>
           </div>
