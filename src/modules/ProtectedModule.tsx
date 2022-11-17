@@ -6,7 +6,7 @@ import LOGO from '../../public/BBT_logo-b.png'
 import { BaseLayout } from '../components/layouts/BaseLayout'
 
 const ProtectedModule: React.FC<PropsWithChildren> = ({ children }) => {
-  const { status, data } = useSession()
+  const { status } = useSession()
   const router = useRouter()
 
   useEffect(() => {
@@ -14,8 +14,7 @@ const ProtectedModule: React.FC<PropsWithChildren> = ({ children }) => {
   }, [status])
 
   // TODO: Pass navigation component to BaseLayout (report accident will have different navigation)
-  // TODO: Fix auth
-  return data?.user ? <BaseLayout>{children}</BaseLayout> : null
+  return <BaseLayout>{children}</BaseLayout>
 }
 
 export { ProtectedModule }
