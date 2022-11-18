@@ -27,3 +27,11 @@ Screens:
 - Report accident page
 - Accidents history
 - Reported by user - Got from Brno API
+
+---
+Stack:
+- Next 13
+- NextAuth
+- Firestore
+- React-query
+- DaisyUI, Tailwindcss
