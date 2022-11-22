@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Calendar, Home } from 'react-feather'
 import { HomeDayCard } from '../components/molecules'
+import { useBrnoBikeAccidents } from '../hooks/accidents'
 import { useAuth } from '../hooks/auth'
 import { usePrecipitation, useTemperature } from '../hooks/weather'
 
@@ -8,6 +9,27 @@ const HomeModule: React.FC = () => {
   const { isLoading, user } = useAuth()
   const { data: precipitation } = usePrecipitation()
   const { data: temp } = useTemperature()
+  const { data: accidents } = useBrnoBikeAccidents()
+
+  const { yesterdayAccidents, todayAccidents, tomorrowAccidents } = useMemo(() => {
+    if (!accidents) return { yesterdayAccidents: null, todayAccidents: null, tomorrowAccidents: null }
+
+    const now = new Date()
+    return {
+      yesterdayAccidents: accidents.filter(
+        ({ attributes: { den, mesic, rok } }) =>
+          den === now.getDate() - 1 && mesic === now.getMonth() && rok === now.getFullYear()
+      ),
+      todayAccidents: accidents.filter(
+        ({ attributes: { den, mesic, rok } }) =>
+          den === now.getDate() && mesic === now.getMonth() && rok === now.getFullYear()
+      ),
+      tomorrowAccidents: accidents.filter(
+        ({ attributes: { den, mesic, rok } }) =>
+          den === now.getDate() + 1 && mesic === now.getMonth() && rok === now.getFullYear()
+      )
+    }
+  }, [accidents])
 
   const { yesterday, today, tomorrow } = useMemo(() => {
     if (!precipitation || !temp)
@@ -46,9 +68,9 @@ const HomeModule: React.FC = () => {
           </div>
 
           <div className="flex w-full space-x-20">
-            <HomeDayCard {...yesterday} title="Yesterday" />
-            <HomeDayCard {...today} />
-            <HomeDayCard {...tomorrow} title="Tomorrow" />
+            <HomeDayCard {...yesterday} title="Yesterday" accidents={yesterdayAccidents} />
+            <HomeDayCard {...today} accidents={todayAccidents} />
+            <HomeDayCard {...tomorrow} title="Tomorrow" accidents={tomorrowAccidents} />
           </div>
         </div>
       )}
