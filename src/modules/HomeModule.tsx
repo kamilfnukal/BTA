@@ -7,6 +7,8 @@ import { usePrecipitation, useTemperature } from '../hooks/weather'
 
 const HomeModule: React.FC = () => {
   const { isLoading, user } = useAuth()
+
+  // TODO: To be replaced with getStaticProps + revalidate
   const { data: precipitation } = usePrecipitation()
   const { data: temp } = useTemperature()
   const { data: accidents } = useBrnoBikeAccidents()

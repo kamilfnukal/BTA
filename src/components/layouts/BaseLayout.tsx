@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react'
 
 const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
-    <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-lighterblue/40 to-lighterblue">
+    <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-lighterblue/20 to-lighterblue">
       <nav className="bg-lighterblue flex w-full items-center mb-10">
         <Image src={LOGO} alt="" className="mx-10 py-4" />
         <ul className="flex items-center space-x-10 container mx-auto px-10 grow">
