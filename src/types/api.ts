@@ -8,3 +8,5 @@ export type WeatherPrecipitationResponse = ({
   month: number
   year: number
 })[]
+
+export type WeatherTemperatureResponse = WeatherPrecipitationResponse
