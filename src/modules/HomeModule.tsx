@@ -1,9 +1,26 @@
+import { useMemo } from 'react'
 import { Calendar } from 'react-feather'
 import { Button } from '../components/atoms'
 import { useAuth } from '../hooks/auth'
+import { usePrecipitation } from '../hooks/weather'
 
 const HomeModule: React.FC = () => {
   const { isLoading, user } = useAuth()
+  const { data } = usePrecipitation()
+
+  const [yesterdayPrecipitation, todayPrecipitation, tomorrowPrecipitation] = useMemo(() => {
+    if (!data) return [null, null, null]
+
+    const now = new Date()
+    const monthPrecipitation = data[now.getMonth()]
+
+    // TODO: not valid. `now.getDate() - 1` can result to 0th of November
+    return [
+      monthPrecipitation[now.getDate() - 1],
+      monthPrecipitation[now.getDate()],
+      monthPrecipitation[now.getDate() + 1]
+    ]
+  }, [data])
 
   return (
     <div>
