@@ -1,16 +1,15 @@
 import clsx from 'clsx'
 import { Smile, Sun, Umbrella } from 'react-feather'
 import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../../const/api'
+import { HomeModuleDayProps } from '../../types'
 import { Button } from '../atoms'
 
-type HomeDayCardProps = {
-  precipitation: number | string
-  temp: number | string
+type CardProps = HomeModuleDayProps & {
   title?: string
   accidents: typeof EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE[] | null
 }
 
-const Card: React.FC<HomeDayCardProps> = ({ temp, precipitation, title, accidents }) => {
+const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accidents }) => {
   const smaller = !!title
 
   const hasAccidents = accidents && accidents.length !== 0
@@ -26,7 +25,7 @@ const Card: React.FC<HomeDayCardProps> = ({ temp, precipitation, title, accident
             <div>
               <Sun size={smaller ? 20 : 28} />
             </div>
-            <div className="bg-lighterpink rounded-lg px-4 py-1">{temp} °C</div>
+            <div className="bg-lighterpink rounded-lg px-4 py-1">{temperature} °C</div>
           </div>
 
           <div className="flex items-center space-x-4 mt-2 mb-4">
@@ -46,7 +45,7 @@ const Card: React.FC<HomeDayCardProps> = ({ temp, precipitation, title, accident
         ) : (
           <>
             <p>It is completely safe to ride a bike today, no accident is going to happen! 🔥</p>
-            <p>{temp} °C is comfortable for bike riding. Have fun!</p>
+            <p>{temperature} °C is comfortable for bike riding. Have fun!</p>
           </>
         )}
 
@@ -64,7 +63,7 @@ const Card: React.FC<HomeDayCardProps> = ({ temp, precipitation, title, accident
   )
 }
 
-const HomeDayCard: React.FC<HomeDayCardProps> = (props) => {
+const HomeDayCard: React.FC<CardProps> = (props) => {
   const { title } = props
   return (
     <>

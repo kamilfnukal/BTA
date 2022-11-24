@@ -10,7 +10,7 @@ const WEATHER_TEMPERATURE_API_KEY = process.env.NEXT_PUBLIC_WEATHER_TEMPERATURE_
 
 const getWeatherQuery = (year: number) => `?q={%22year%22:%20${year}}&max=15&skip=0`
 
-const getPrecipitation = async (year: number): Promise<WeatherPrecipitationResponse> => {
+export const getPrecipitation = async (year: number): Promise<WeatherPrecipitationResponse> => {
   const response = await axios.get(`${WEATHER_PRECIPITATION_API_BASE}precipitation${getWeatherQuery(year)}`, {
     headers: {
       'x-apikey': WEATHER_PRECIPITATION_API_KEY
@@ -23,7 +23,7 @@ export const usePrecipitation = () => {
   return useQuery(['precipitation'], () => getPrecipitation(new Date().getFullYear() - YEAR_OFFSET))
 }
 
-const getTemperature = async (year: number): Promise<WeatherTemperatureResponse> => {
+export const getTemperature = async (year: number): Promise<WeatherTemperatureResponse> => {
   const response = await axios.get(`${WEATHER_TEMPERATURE_API_BASE}temp-avg${getWeatherQuery(year)}`, {
     headers: {
       'x-apikey': WEATHER_TEMPERATURE_API_KEY

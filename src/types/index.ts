@@ -11,3 +11,14 @@ type UseAuthLoading = {
 }
 
 export type UseAuth = UseAuthLoaded | UseAuthLoading
+
+export type HomeModuleDayProps = {
+  temperature: string | number
+  precipitation: string | number
+}
+
+export type HomePageProps = {
+  yesterday: HomeModuleDayProps
+  today: HomeModuleDayProps
+  tomorrow: HomeModuleDayProps
+}

@@ -1,18 +1,16 @@
 import { useMemo } from 'react'
-import { Calendar, Home } from 'react-feather'
+import { Calendar } from 'react-feather'
 import { HomeDayCard } from '../components/molecules'
 import { useBrnoBikeAccidents } from '../hooks/accidents'
 import { useAuth } from '../hooks/auth'
-import { usePrecipitation, useTemperature } from '../hooks/weather'
+import { HomePageProps } from '../types'
 
-const HomeModule: React.FC = () => {
+const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => {
   const { isLoading, user } = useAuth()
 
-  // TODO: To be replaced with getStaticProps + revalidate
-  const { data: precipitation } = usePrecipitation()
-  const { data: temp } = useTemperature()
   const { data: accidents } = useBrnoBikeAccidents()
 
+  // TODO to getStaticProps
   const { yesterdayAccidents, todayAccidents, tomorrowAccidents } = useMemo(() => {
     if (!accidents) return { yesterdayAccidents: null, todayAccidents: null, tomorrowAccidents: null }
 
@@ -32,26 +30,6 @@ const HomeModule: React.FC = () => {
       )
     }
   }, [accidents])
-
-  const { yesterday, today, tomorrow } = useMemo(() => {
-    if (!precipitation || !temp)
-      return {
-        yesterday: { precipitation: '', temp: '' },
-        today: { precipitation: '', temp: '' },
-        tomorrow: { precipitation: '', temp: '' }
-      }
-
-    const now = new Date()
-    const monthPrecipitation = precipitation[now.getMonth()]
-    const monthTemp = temp[now.getMonth()]
-
-    // TODO: not valid. `now.getDate() - 1` can result to 0th of November
-    return {
-      yesterday: { precipitation: monthPrecipitation[now.getDate() - 1], temp: monthTemp[now.getDate() - 1] },
-      today: { precipitation: monthPrecipitation[now.getDate()], temp: monthTemp[now.getDate()] },
-      tomorrow: { precipitation: monthPrecipitation[now.getDate() + 1], temp: monthTemp[now.getDate() + 1] }
-    }
-  }, [precipitation, temp])
 
   return (
     <div>
