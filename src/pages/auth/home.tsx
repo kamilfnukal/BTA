@@ -1,4 +1,5 @@
 import { GetStaticProps, NextPage } from 'next'
+import { useEffect } from 'react'
 import { YEAR_OFFSET } from '../../const'
 import { getBrnoBikeAccidents } from '../../hooks/accidents'
 import { getPrecipitation, getTemperature } from '../../hooks/weather'
@@ -22,11 +23,22 @@ const filerAccidentsByDate = (
 }
 
 // TODO: useEffect that checks if needing revalidate (current rendered day stored in firestore)
-const HomePage: NextPage<HomePageProps> = (props) => (
-  <ProtectedModule>
-    <HomeModule {...props} />
-  </ProtectedModule>
-)
+const HomePage: NextPage<HomePageProps> = (props) => {
+  // TODO: extract this useEffect to src/hooks
+  useEffect(() => {
+    // TODO:
+    // Fetch from firestoreDB, when was home page last time revalidated
+    // if today, do not do anything
+    // if `before today`, we need to revalidate it by calling
+    // `fetch(`/api/revalidate?page=home&secret=${process.env.NEXT_PUBLIC_SECRET}`)`
+  }, [])
+
+  return (
+    <ProtectedModule>
+      <HomeModule {...props} />
+    </ProtectedModule>
+  )
+}
 
 export const getStaticProps: GetStaticProps = async () => {
   const now = new Date()
@@ -39,8 +51,6 @@ export const getStaticProps: GetStaticProps = async () => {
     await getPrecipitation(year),
     await getBrnoBikeAccidents()
   ])
-
-  console.log(accidents)
 
   // TODO: fix yesterday and tomorrow
   return {

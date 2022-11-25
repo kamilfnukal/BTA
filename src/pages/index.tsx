@@ -12,6 +12,9 @@ const LandingPage: NextPage = () => {
     if (data && data.user) router.replace('/auth/home')
   }, [data])
 
+  // TODO: Use useEffect for revalidating the page once a day (same as in src/pages/auth/home), but with
+  // different query parameter "?page=index"
+
   return (
     <div className="">
       <div className="hero min-h-screen bg-gradient-to-tl from-lighterblue/10 to-lighterblue">

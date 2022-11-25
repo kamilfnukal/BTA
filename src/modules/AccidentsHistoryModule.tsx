@@ -8,7 +8,6 @@ type Props = {
 const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const { isLoading, user } = useAuth()
 
-  console.log(data)
   return (
     <div>
       {isLoading ? (
