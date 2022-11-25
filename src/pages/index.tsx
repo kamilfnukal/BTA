@@ -1,4 +1,4 @@
-import { NextPage } from 'next'
+import { GetStaticProps, NextPage } from 'next'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -79,6 +79,18 @@ const LandingPage: NextPage = () => {
       </div>
     </div>
   )
+}
+
+// TODO: Fetch data about accidents and filter it
+//  - accidents this month
+//  - accidents this year
+//  - accidents all time
+// and return count for each (because we just display counts)
+// (You can reuse the logic from src/pages/auth/home)
+export const getStaticProps: GetStaticProps = async () => {
+  return {
+    props: {}
+  }
 }
 
 export default LandingPage
