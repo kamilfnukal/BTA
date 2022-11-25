@@ -8,29 +8,6 @@ import { HomePageProps } from '../types'
 const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => {
   const { isLoading, user } = useAuth()
 
-  const { data: accidents } = useBrnoBikeAccidents()
-
-  // TODO to getStaticProps
-  const { yesterdayAccidents, todayAccidents, tomorrowAccidents } = useMemo(() => {
-    if (!accidents) return { yesterdayAccidents: null, todayAccidents: null, tomorrowAccidents: null }
-
-    const now = new Date()
-    return {
-      yesterdayAccidents: accidents.filter(
-        ({ attributes: { den, mesic, rok } }) =>
-          den === now.getDate() - 1 && mesic === now.getMonth() && rok === now.getFullYear()
-      ),
-      todayAccidents: accidents.filter(
-        ({ attributes: { den, mesic, rok } }) =>
-          den === now.getDate() && mesic === now.getMonth() && rok === now.getFullYear()
-      ),
-      tomorrowAccidents: accidents.filter(
-        ({ attributes: { den, mesic, rok } }) =>
-          den === now.getDate() + 1 && mesic === now.getMonth() && rok === now.getFullYear()
-      )
-    }
-  }, [accidents])
-
   return (
     <div>
       {isLoading ? (
@@ -48,9 +25,9 @@ const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => 
           </div>
 
           <div className="flex w-full space-x-20">
-            <HomeDayCard {...yesterday} title="Yesterday" accidents={yesterdayAccidents} />
-            <HomeDayCard {...today} accidents={todayAccidents} />
-            <HomeDayCard {...tomorrow} title="Tomorrow" accidents={tomorrowAccidents} />
+            <HomeDayCard {...yesterday} title="Yesterday" />
+            <HomeDayCard {...today} />
+            <HomeDayCard {...tomorrow} title="Tomorrow" />
           </div>
         </div>
       )}

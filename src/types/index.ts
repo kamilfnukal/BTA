@@ -1,4 +1,5 @@
 import { Session } from 'next-auth'
+import { BrnoBikeAccidentsResponse } from './api'
 
 type UseAuthLoaded = {
   isLoading: false
@@ -15,6 +16,7 @@ export type UseAuth = UseAuthLoaded | UseAuthLoading
 export type HomeModuleDayProps = {
   temperature: string | number
   precipitation: string | number
+  accidents: BrnoBikeAccidentsResponse
 }
 
 export type HomePageProps = {

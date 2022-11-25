@@ -6,13 +6,13 @@ import { Button } from '../atoms'
 
 type CardProps = HomeModuleDayProps & {
   title?: string
-  accidents: typeof EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE[] | null
+  accidents: typeof EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE[]
 }
 
 const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accidents }) => {
   const smaller = !!title
 
-  const hasAccidents = accidents && accidents.length !== 0
+  const hasAccidents = accidents.length !== 0
 
   return (
     <div className="card card-compact bg-base-100 shadow-xl">
