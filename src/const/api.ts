@@ -1,6 +1,8 @@
 export const API_BRNO_BIKE_ACCIDENTS =
   'https://gis.brno.cz/ags1/rest/services/Hosted/Cyklo_nehody/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
 
+export const API_BRNO_BIKE_ACCIDENTS_DEV = 'http://localhost:3000/api/accidents/brno-dev'
+
 export const EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE = {
   attributes: {
     datum: 1307145600000,
