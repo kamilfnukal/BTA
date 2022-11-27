@@ -1,3 +1,6 @@
+# IMPORTANT
+- ‼️ Udělejte si checkout na `dev` a z `dev`u pak vždycky feature branch. PR dávejte z vaši feature branche do `dev`u ‼️
+
 # PV247 projekt
 
 Dalibor Pantlík, Kamil Fňukal, Patrícia Andicsová
