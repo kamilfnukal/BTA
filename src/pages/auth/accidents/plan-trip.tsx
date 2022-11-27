@@ -1,9 +1,9 @@
 import { NextPage } from 'next'
-import { ReportAccidentModule, ProtectedModule } from '../../../modules'
+import { PlanTripModule, ProtectedModule } from '../../../modules'
 
 const ReportAccidentPage: NextPage = () => (
   <ProtectedModule>
-    <ReportAccidentModule />
+    <PlanTripModule />
   </ProtectedModule>
 )
 

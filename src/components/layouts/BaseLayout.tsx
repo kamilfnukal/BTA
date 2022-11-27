@@ -17,8 +17,8 @@ const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
           <li>
             <Link href="/auth/accidents/history">Accidents</Link>
           </li>
-          <li className="bg-lightblue rounded px-4 py-2">
-            <Link href="/auth/accidents/report">Report accident</Link>
+          <li className="bg-lightblue rounded px-4 py-2 shadow hover:shadow-md hover:cursor-pointer">
+            <Link href="/auth/accidents/plan-trip">Plan your next trip!</Link>
           </li>
         </ul>
 
