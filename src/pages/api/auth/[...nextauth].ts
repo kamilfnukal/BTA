@@ -14,7 +14,7 @@ export default NextAuth({
   pages: {
     signIn: '/'
   },
-  secret: process.env.secret,
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     redirect: async ({ baseUrl }) => {
       return `${baseUrl}/auth/home`

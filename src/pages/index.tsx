@@ -8,6 +8,7 @@ const LandingPage: NextPage = () => {
   const { data } = useSession()
   const router = useRouter()
 
+  // TODO: Remove this useEffect. Instead show different buttons like "Go to app" if user is logged in
   useEffect(() => {
     if (data && data.user) router.replace('/auth/home')
   }, [data])

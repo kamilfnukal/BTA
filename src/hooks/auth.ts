@@ -1,6 +1,7 @@
 import { useSession } from 'next-auth/react'
 import { UseAuth } from '../types'
 
+// TODO: will still be used?
 export const useAuth = () => {
   const { data, status } = useSession()
 

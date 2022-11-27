@@ -2,7 +2,6 @@ import { Transition } from '@headlessui/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { ArrowRight, Calendar, Search } from 'react-feather'
-import { useAuth } from '../hooks/auth'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
@@ -132,89 +131,83 @@ type Props = {
 }
 
 const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
-  const { isLoading } = useAuth()
-
   const [query, setQuery] = useState('')
   const [showTable, setShowTable] = useState(true)
 
   return (
     <div className="container mx-auto px-10">
-      {isLoading ? (
-        <h1 className="text-3xl">Loading</h1>
-      ) : (
-        <>
-          <div className="flex mb-14 space-x-10 text-base">
-            <div className="bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 flex space-x-4 font-medium items-center">
+      <>
+        <div className="flex mb-14 space-x-10 text-base">
+          <div className="bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 flex space-x-4 font-medium items-center">
+            <Calendar />
+            {/* TODO: Todays date */}
+            <span>17th November</span>
+          </div>
+
+          <div className="flex space-x-4 items-center grow">
+            {/* TODO: Week picker */}
+            <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
               <Calendar />
-              {/* TODO: Todays date */}
-              <span>17th November</span>
+              <span>Week picker</span>
             </div>
 
-            <div className="flex space-x-4 items-center grow">
-              {/* TODO: Week picker */}
-              <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
-                <Calendar />
-                <span>Week picker</span>
-              </div>
+            {/* TODO: Date picker */}
+            <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
+              <Calendar />
+              <span>Select day</span>
+            </div>
 
-              {/* TODO: Date picker */}
-              <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
-                <Calendar />
-                <span>Select day</span>
+            <div className="grow relative">
+              <div className="absolute top-3.5 left-5">
+                <Search size={16} />
               </div>
-
-              <div className="grow relative">
-                <div className="absolute top-3.5 left-5">
-                  <Search size={16} />
-                </div>
-                <input
-                  onChange={(e) => setQuery(e.target.value)}
-                  type="text"
-                  placeholder="Search accident..."
-                  className="w-full py-2 pl-12 pr-2 border-2 border-gray-200 rounded-lg bg-white shadow appearance-none focus-visible:outline-none"
-                />
-                <div className="absolute -bottom-5 right-2 text-gray-400 text-xs">
-                  <span>Search in all </span>
-                  <span className="text-blue-800">{data.length} </span>
-                  <span>accidents</span>
-                </div>
+              <input
+                onChange={(e) => setQuery(e.target.value)}
+                type="text"
+                placeholder="Search accident..."
+                className="w-full py-2 pl-12 pr-2 border-2 border-gray-200 rounded-lg bg-white shadow appearance-none focus-visible:outline-none"
+              />
+              <div className="absolute -bottom-5 right-2 text-gray-400 text-xs">
+                <span>Search in all </span>
+                <span className="text-blue-800">{data.length} </span>
+                <span>accidents</span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* TODO: Extract to component -- duplicated code for Trainsition */}
-          <Transition
-            show={!!query && !showTable}
-            afterLeave={() => setShowTable((v) => !v)}
-            enter="transition-opacity duration-125"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity duration-125"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            {/* TODO: Found accidents view */}
-            <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
-              {[1, 2, 3, 4].map((v) => (
-                <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
-              ))}
-            </div>
-          </Transition>
-          <Transition
-            show={!query && showTable}
-            afterLeave={() => setShowTable((v) => !v)}
-            enter="transition-opacity duration-125"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity duration-125"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            {/* TODO: Change mock */}
-            <Table days={DAYS_MOCK} />
-          </Transition>
-        </>
-      )}
+        {/* TODO: Extract to component -- duplicated code for Trainsition */}
+        <Transition
+          show={!!query && !showTable}
+          afterLeave={() => setShowTable((v) => !v)}
+          enter="transition-opacity duration-125"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-opacity duration-125"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          {/* TODO: Found accidents view */}
+          <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
+            {[1, 2, 3, 4].map((v) => (
+              <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
+            ))}
+          </div>
+        </Transition>
+        <Transition
+          show={!query && showTable}
+          afterLeave={() => setShowTable((v) => !v)}
+          enter="transition-opacity duration-125"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-opacity duration-125"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          {/* TODO: Change mock */}
+          <Table days={DAYS_MOCK} />
+        </Transition>
+      </>
     </div>
   )
 }
