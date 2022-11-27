@@ -1,13 +1,14 @@
 import { Transition } from '@headlessui/react'
+import Image from 'next/image'
 import { useState } from 'react'
-import { Calendar, Search } from 'react-feather'
+import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useAuth } from '../hooks/auth'
-import { BrnoBikeAccidentsResponse } from '../types/api'
+import { useTemperature } from '../hooks/weather'
+import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
+import DUMMY_BIKE from '../../public/Blue-bike.svg'
 
 type TableDay = {
   date: Date
-  temperature: number | string
-  forecast: string
   accidentsCount: number
 }
 
@@ -15,7 +16,35 @@ type TableProps = {
   days: TableDay[] | [TableDay] // Should always be 7 or 1
 }
 
+const getTemperatrue = (date: Date, temperatureData?: WeatherTemperatureResponse) => {
+  const month = date.getMonth()
+  const d = date.getDate()
+
+  return temperatureData?.find((data) => data.month === month)?.[d] ?? 'Loading'
+}
+
+const getForecast = (temperature: number | string, accidentsCount: number) => {
+  if (temperature === 'Loading') {
+    return 'Loading'
+  }
+
+  if (temperature < 5) {
+    if (accidentsCount === 0) {
+      return "It's gonna be a bit cold, but no accident is expected! ✅"
+    }
+    return `Don't ride a bike today! ❌ It's cold and will happen ${accidentsCount} accidents.`
+  }
+
+  if (accidentsCount === 0) {
+    return 'Perfect weather for bike riding today! Totally safe as well, no accident will happen 🔥'
+  }
+
+  return `It's not going to be cold, but ${accidentsCount} accidents are expected. Be carefoul! 🙏`
+}
+
 const Table: React.FC<TableProps> = ({ days }) => {
+  const { data: temp } = useTemperature()
+
   // TODO: Show selected week OR selected date
   return (
     <div className="overflow-x-auto shadow-md">
@@ -26,60 +55,77 @@ const Table: React.FC<TableProps> = ({ days }) => {
               <Calendar size={16} className="inline-block" />
               <span>Date</span>
             </th>
+            {/* TODO: icons? */}
             <th>Temperature</th>
             <th>Forecast</th>
             <th>Accidents count</th>
           </tr>
         </thead>
-        <tbody className="">
-          {/* TODO: map days */}
-          <tr>
-            <th>28</th>
-            <td>Cy Ganderton</td>
-            <td>Specialist</td>
-            <td>Blue</td>
-          </tr>
-          <tr>
-            <th>29</th>
-            <td>Hart Hagerty</td>
-            <td>Desktop Support Technician</td>
-            <td>Purple</td>
-          </tr>
-          <tr>
-            <th>30</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-          </tr>
-          <tr>
-            <th>1.12.</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-          </tr>
-          <tr>
-            <th>2.</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-          </tr>
-          <tr>
-            <th>3</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-          </tr>
-          <tr>
-            <th>4</th>
-            <td>Brice Swyre</td>
-            <td>Tax Accountant</td>
-            <td>Red</td>
-          </tr>
+        <tbody>
+          {days.map(({ date, accidentsCount }) => {
+            const temperature = getTemperatrue(date, temp)
+            return (
+              <tr>
+                <th>{date.toLocaleDateString()}</th>
+                <td>{temperature}</td>
+                <td>{getForecast(temperature, accidentsCount)}</td>
+                {/* TODO: style + "Get details ->" button */}
+                <td>{accidentsCount}</td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
+
+type AccidentProps = {
+  date: Date
+  info: BrnoBikeAccidentsResponse[0]
+}
+
+const Accident: React.FC<AccidentProps> = ({ date, info }) => {
+  return (
+    <div className="w-1/3">
+      <div className="mx-4 bg-gradient-to-tl from-lightblue to-lighterpink/70 p-6 rounded-lg">
+        <div className="flex space-x-4">
+          <Image src={DUMMY_BIKE} width={54} alt="Shoes" />
+          <div>
+            <h2 className="font-bold text-blue-800 text-lg">Accident in Brno</h2>
+            <div className="flex items-center space-x-2 text-blue-800">
+              <Calendar size={14} />
+              <div className="text-sm font-light">{date.toLocaleDateString()}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-between items-center text-blue-800">
+          <h3 className="text-lg font-semibold pl-2">Details</h3>
+          <div className="flex space-x-2 items-center rounded-lg px-2 py-1 hover:shadow hover:cursor-pointer">
+            <button className="">See more</button>
+            <ArrowRight size={14} />
+          </div>
+        </div>
+        {/* TODO: restrict length of description to ?? */}
+        <div className="mt-2 py-2 px-4 shadow rounded-lg">
+          description description description description description description description
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const DAYS_MOCK = [
+  {
+    date: new Date(),
+    accidentsCount: 2
+  },
+  {
+    date: new Date('2022-11-26'),
+    accidentsCount: 2
+  }
+]
 
 type Props = {
   data: BrnoBikeAccidentsResponse
@@ -148,7 +194,11 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
             leaveTo="opacity-0"
           >
             {/* TODO: Found accidents view */}
-            <div className="bg-red-800 mt-8">{query}</div>
+            <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
+              {[1, 2, 3, 4].map((v) => (
+                <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
+              ))}
+            </div>
           </Transition>
           <Transition
             show={!query && showTable}
@@ -160,7 +210,8 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Table days={[]} />
+            {/* TODO: Change mock */}
+            <Table days={DAYS_MOCK} />
           </Transition>
         </>
       )}
