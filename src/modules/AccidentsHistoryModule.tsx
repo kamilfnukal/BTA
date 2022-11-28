@@ -1,10 +1,10 @@
-import { Transition } from '@headlessui/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
+import { CustomTransition } from '../components/atoms/CustomTransition'
 
 type TableDay = {
   date: Date
@@ -176,37 +176,18 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
           </div>
         </div>
 
-        {/* TODO: Extract to component -- duplicated code for Trainsition */}
-        <Transition
-          show={!!query && !showTable}
-          afterLeave={() => setShowTable((v) => !v)}
-          enter="transition-opacity duration-125"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity duration-125"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
+        <CustomTransition show={!!query && !showTable} afterLeave={() => setShowTable((v) => !v)}>
           {/* TODO: Found accidents view */}
           <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
             {[1, 2, 3, 4].map((v) => (
               <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
             ))}
           </div>
-        </Transition>
-        <Transition
-          show={!query && showTable}
-          afterLeave={() => setShowTable((v) => !v)}
-          enter="transition-opacity duration-125"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity duration-125"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
+        </CustomTransition>
+        <CustomTransition show={!query && showTable} afterLeave={() => setShowTable((v) => !v)}>
           {/* TODO: Change mock */}
           <Table days={DAYS_MOCK} />
-        </Transition>
+        </CustomTransition>
       </>
     </div>
   )
