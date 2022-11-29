@@ -3,14 +3,14 @@ import { PropsWithChildren } from 'react'
 
 type TransitionProps = PropsWithChildren<{
   show: boolean
-  afterLeave: any
+  afterLeave: () => void
 }>
 
-const CustomTransition: React.FC<TransitionProps> = (props) => {
+const CustomTransition: React.FC<TransitionProps> = ({ show, afterLeave, children }) => {
   return (
     <Transition
-      show={props.show}
-      afterLeave={props.afterLeave}
+      show={show}
+      afterLeave={afterLeave}
       enter="transition-opacity duration-125"
       enterFrom="opacity-0"
       enterTo="opacity-100"
@@ -18,7 +18,7 @@ const CustomTransition: React.FC<TransitionProps> = (props) => {
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
     >
-      {props.children}
+      {children}
     </Transition>
   )
 }
