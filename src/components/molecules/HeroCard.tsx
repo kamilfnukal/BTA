@@ -1,5 +1,5 @@
 import { signIn } from 'next-auth/react'
-import { Button } from '../atoms/Button'
+import { Button } from '../atoms'
 
 type HeroCardProps = {
   header: string
