@@ -4,7 +4,7 @@ import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
-import { CustomTransition } from '../components/atoms/CustomTransition'
+import { CustomTransition } from '../components/atoms'
 
 type TableDay = {
   date: Date
