@@ -2,7 +2,8 @@ import { GetStaticProps, NextPage } from 'next'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { Button, HeroStats } from '../components/atoms'
+import { Button } from '../components/atoms'
+import { HeroStats } from '../components/molecules'
 import { HeroCard } from '../components/molecules'
 
 const LandingPage: NextPage = () => {

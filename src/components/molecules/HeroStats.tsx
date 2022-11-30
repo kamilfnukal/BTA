@@ -1,4 +1,4 @@
-import { Stat, StatProps } from './index'
+import { Stat, StatProps } from '../atoms'
 
 type HeroStatsProps = {
   thisMonth: StatProps
