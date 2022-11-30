@@ -1,5 +1,3 @@
-import { CSSProperties } from 'react'
-
 type ButtonProps = {
   label: string
   extraClasses?: string
