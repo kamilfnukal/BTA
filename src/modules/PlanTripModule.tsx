@@ -1,8 +1,12 @@
 import { Navigation } from 'react-feather'
 import { Map, ZoomControl, MouseControl, SyncControl } from 'react-mapycz'
 import { BaseIconInput } from '../components/atoms'
+import { useMapLoaderScript, useSMapReadyListener } from '../hooks/mapycz'
 
 const MapyczMap = () => {
+  useMapLoaderScript()
+  useSMapReadyListener()
+
   return (
     <Map
       height="100%"
@@ -43,6 +47,9 @@ const PlanTripModule: React.FC = () => {
 
         {/* TODO: text */}
         <p>You need to type coordinates</p>
+
+        {/* TODO: remove and integrate suggest on LabeledInputs */}
+        <input type="text" id="suggest" />
 
         <LabeledInput label="Start from" placeholder="Brno - Veveří" />
         <LabeledInput label="End of trip" placeholder="Brno - Botanická" />
