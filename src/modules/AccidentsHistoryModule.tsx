@@ -4,7 +4,7 @@ import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
-import { CustomTransition } from '../components/atoms'
+import { BaseIconInput, CustomTransition } from '../components/atoms'
 
 type TableDay = {
   date: Date
@@ -157,22 +157,19 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
               <span>Select day</span>
             </div>
 
-            <div className="grow relative">
-              <div className="absolute top-3.5 left-5">
-                <Search size={16} />
-              </div>
-              <input
-                onChange={(e) => setQuery(e.target.value)}
-                type="text"
-                placeholder="Search accident..."
-                className="w-full py-2 pl-12 pr-2 border-2 border-gray-200 rounded-lg bg-white shadow appearance-none focus-visible:outline-none"
-              />
-              <div className="absolute -bottom-5 right-2 text-gray-400 text-xs">
-                <span>Search in all </span>
-                <span className="text-blue-800">{data.length} </span>
-                <span>accidents</span>
-              </div>
-            </div>
+            <BaseIconInput
+              extraWrapperClasses="grow"
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search accident..."
+              Icon={Search}
+              note={
+                <>
+                  <span>Search in all </span>
+                  <span className="text-blue-800">{data.length} </span>
+                  <span>accidents</span>
+                </>
+              }
+            />
           </div>
         </div>
 
