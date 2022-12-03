@@ -158,6 +158,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
             </div>
 
             <BaseIconInput
+              id="accident-query"
               extraWrapperClasses="grow"
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search accident..."
