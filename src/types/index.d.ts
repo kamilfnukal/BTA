@@ -1,6 +1,13 @@
 import { Session } from 'next-auth'
 import { BrnoBikeAccidentsResponse } from './api'
 
+declare global {
+  interface Window {
+    SMap: any
+    Loader: any
+  }
+}
+
 type UseAuthLoaded = {
   isLoading: false
   user: NonNullable<Session['user']>
@@ -9,6 +16,11 @@ type UseAuthLoaded = {
 type UseAuthLoading = {
   isLoading: true
   user: null
+}
+
+export type Coord = {
+  lat: number
+  lng: number
 }
 
 export type UseAuth = UseAuthLoaded | UseAuthLoading

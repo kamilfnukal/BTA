@@ -7,6 +7,7 @@ type BaseInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, H
   extraWrapperClasses?: string
   Icon: Icon
   note?: React.ReactNode
+  id: string
 }
 
 const BaseIconInput: React.FC<BaseInputProps> = ({

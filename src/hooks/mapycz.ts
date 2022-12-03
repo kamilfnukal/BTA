@@ -1,15 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { MapContext } from 'react-mapycz/lib/Map'
+import { setListener } from '../utils'
 
-// TODO: docs
-const setSMapListener = (window: any, onReady: any) => {
-  const readyListener: any = () => {
-    if (window.SMap) {
-      onReady()
-      return
-    }
-    return setTimeout(readyListener, 1000)
+type MapyczSelectedPlace = {
+  data: {
+    phrase: string
+    latitude: number
+    longitude: number
   }
-  readyListener()
+}
+
+type MapyczSearchField = {
+  id: string
+  onClick: (selectedPlace: MapyczSelectedPlace) => void
+}
+
+const createSuggest = (inputElement: HTMLElement | null) => {
+  return new window.SMap.Suggest(inputElement, {
+    provider: new window.SMap.SuggestProvider()
+  })
+}
+
+const useWaitForSMap = (onReady: () => void) => {
+  useEffect(() => {
+    setListener(() => !!window.SMap, onReady)
+  }, [])
 }
 
 // TODO: docs
@@ -19,13 +34,12 @@ const useMapLoaderScript = () => {
     script.src = 'https://api.mapy.cz/loader.js'
 
     script.onload = () => {
-      const w = window as any
-      w.Loader.async = true
+      window.Loader.async = true
 
       // It is not possible to await it.
-      // We need to wait till this gets loaded different way.
-      // Thats why we need to have useSMapReadyListener
-      w.Loader.load(null, { suggest: true })
+      // We need to wait till this gets loaded different way ->
+      // thats why we need to have `useSMapReadyListener`
+      window.Loader.load(null, { suggest: true })
     }
 
     document.head.appendChild(script)
@@ -37,49 +51,41 @@ const useMapLoaderScript = () => {
 }
 
 // TODO: docs
-const useSMapReadyListener = () => {
+const useSetupSuggestListeners = (searchfields: MapyczSearchField[]) => {
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    setSMapListener(window, () => setLoaded(true))
-  }, [])
+  useWaitForSMap(() => setLoaded(true))
 
   useEffect(() => {
     if (!loaded) {
       return
     }
 
-    const w = window as any
-    const inputEl = document.getElementById('suggest')
+    const suggests = [] as {
+      elementId: string
+      suggest: any
+      onClickCallback: (suggestData: MapyczSelectedPlace) => void
+    }[]
 
-    let suggest = new w.SMap.Suggest(inputEl, {
-      provider: new w.SMap.SuggestProvider({
-        updateParams: (params: any) => {
-          console.log('changed')
-          /*
-            tato fce se vola pred kazdym zavolanim naseptavace,
-            params je objekt, staci prepsat/pridat klic a ten se prida
-            do url
-          */
-          // let c = m.getCenter().toWGS84()
-          // params.lon = c[0].toFixed(5)
-          // params.lat = c[1].toFixed(5)
-          // params.zoom = m.getZoom()
-          // nepovolime kategorie, ale takto bychom mohli
-          //params.enableCategories = 1;
-          // priorita jazyku, oddelene carkou
-          // params.lang = 'cs,en'
-        }
-      })
-    })
+    for (const { id: elementId, onClick } of searchfields) {
+      const inputEl = document.getElementById(elementId)
+      const suggest = createSuggest(inputEl)
 
-    suggest.addListener('suggest', (suggestData: any) => {
-      // vyber polozky z naseptavace
-      setTimeout(function () {
-        alert(JSON.stringify(suggestData, null, 4))
-      }, 0)
-    })
+      const onClickCallback = (suggestData: MapyczSelectedPlace) => onClick(suggestData)
+
+      suggest.addListener('suggest', onClickCallback)
+      suggests.push({ suggest, elementId, onClickCallback })
+    }
+
+    return () => {
+      for (const { elementId, suggest, onClickCallback } of suggests) {
+        suggest.removeListener(`suggest-${elementId}`, onClickCallback)
+      }
+    }
   }, [loaded])
 }
 
-export { useSMapReadyListener, useMapLoaderScript }
+const useMap = () => useContext<any>(MapContext)
+
+export { useSetupSuggestListeners, useMapLoaderScript, useMap }
+export type { MapyczSelectedPlace }
