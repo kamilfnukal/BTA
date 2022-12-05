@@ -4,6 +4,8 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { Button, HeroStats } from '../components/atoms'
 import { HeroCard } from '../components/molecules'
+import { YEAR_OFFSET } from '../const'
+import { getBrnoBikeAccidents } from '../hooks/accidents'
 
 const LandingPage: NextPage = () => {
   const { data } = useSession()
@@ -69,16 +71,24 @@ const LandingPage: NextPage = () => {
   )
 }
 
-// TODO: Fetch data about accidents and filter it
+//Fetch data about accidents and filter it
 //  - accidents this month
 //  - accidents this year
 //  - accidents all time
 // and return count for each (because we just display counts)
 // (You can reuse the logic from src/pages/auth/home)
 export const getStaticProps: GetStaticProps = async () => {
-  return {
-    props: {}
-  }
+  const now = new Date()
+  const year = now.getFullYear() - YEAR_OFFSET
+  const month = now.getMonth()
+
+  const accidents = await getBrnoBikeAccidents();
+
+  return {props:{
+    accidentsThisMonth: accidents.filter(({ attributes: { mesic } }) => mesic == month),
+    accidentsThisYear: accidents.filter(({ attributes: { rok } }) => rok == year),
+    accidentsAllTime: accidents
+  }};
 }
 
 export default LandingPage
