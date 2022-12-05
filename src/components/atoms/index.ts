@@ -1,4 +1,6 @@
 export * from './Button'
 export * from './CustomTransition'
-export * from './HeroStats'
 export * from './Stat'
+export * from './BaseIconInput'
+export * from './MapDynamicRoute'
+export * from './MapMarkers'

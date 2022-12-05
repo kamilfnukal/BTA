@@ -9,8 +9,14 @@ module.exports = {
         "lighterpink": "#FFC8DD",
         "lightpink": "#FFAFCC",
         "lightpurple": "#CDB4DB"
+      },
+      screens: {
+        '3xl': '1800px'
       }
     }
+  },
+  daisyui: {
+    themes: false,
   },
   plugins: [require("daisyui")]
 }
