@@ -7,19 +7,23 @@ import { HomeModule, ProtectedModule } from '../../modules'
 import { HomePageProps } from '../../types'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../../types/api'
 
-const filterWeatherByDate = (weatherResponse: WeatherTemperatureResponse, month: number, date: number) => {
-  return weatherResponse[month][date]
+const filterWeatherByDate = (weatherResponse: WeatherTemperatureResponse, date: Date) => {
+  return weatherResponse[date.getMonth()][date.getDate()]
 }
 
-const filerAccidentsByDate = (
-  accidentsResponse: BrnoBikeAccidentsResponse,
-  month: number,
-  date: number,
-  year: number
-) => {
+const filerAccidentsByDate = (accidentsResponse: BrnoBikeAccidentsResponse, date: Date) => {
+  // TODO: fix via `datum`
   return accidentsResponse.filter(
-    ({ attributes: { den, mesic, rok } }) => den === date && mesic === month && rok === year
+    ({ attributes: { den, mesic, rok } }) =>
+      den === date.getDate() && mesic === date.getMonth() && rok === date.getFullYear() - YEAR_OFFSET
   )
+}
+
+const isSameYear = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear()
+
+const fetchWeatherDifferentYear = async (date: Date) => {
+  const year = date.getFullYear() - YEAR_OFFSET
+  return [await getTemperature(year), await getPrecipitation(year)]
 }
 
 // TODO: useEffect that checks if needing revalidate (current rendered day stored in firestore)
@@ -43,59 +47,44 @@ const HomePage: NextPage<HomePageProps> = (props) => {
 export const getStaticProps: GetStaticProps = async () => {
   const now = new Date()
   const yesterday = new Date()
-  yesterday.setDate(now.getDate() - 1)
   const tomorrow = new Date()
+
+  yesterday.setDate(now.getDate() - 1)
   tomorrow.setDate(now.getDate() + 1)
 
   const [temperatureToday, precipicationToday, accidents] = await Promise.all([
-    await getTemperature(now.getFullYear() - YEAR_OFFSET),
-    await getPrecipitation(yesterday.getFullYear() - YEAR_OFFSET),
-    await getBrnoBikeAccidents()
+    getTemperature(now.getFullYear() - YEAR_OFFSET),
+    getPrecipitation(now.getFullYear() - YEAR_OFFSET),
+    getBrnoBikeAccidents()
   ])
 
-  const temperatureYesterday =
-    yesterday.getFullYear() == now.getFullYear()
-      ? temperatureToday
-      : await getTemperature(yesterday.getFullYear() - YEAR_OFFSET)
-  const temperatureTomorrow =
-    tomorrow.getFullYear() == now.getFullYear()
-      ? temperatureToday
-      : await getTemperature(tomorrow.getFullYear() - YEAR_OFFSET)
-  const precipacationYesterday =
-    yesterday.getFullYear() == now.getFullYear()
-      ? precipicationToday
-      : await getPrecipitation(yesterday.getFullYear() - YEAR_OFFSET)
-  const precipitationTomorrow =
-    tomorrow.getFullYear() == now.getFullYear()
-      ? precipicationToday
-      : await getPrecipitation(tomorrow.getFullYear() - YEAR_OFFSET)
+  let yesterdayWeather = [temperatureToday, precipicationToday]
+  let tomorrowWeather = [temperatureToday, precipicationToday]
+
+  if (!isSameYear(now, yesterday)) {
+    yesterdayWeather = await fetchWeatherDifferentYear(yesterday)
+  }
+
+  if (!isSameYear(now, tomorrow)) {
+    tomorrowWeather = await fetchWeatherDifferentYear(tomorrow)
+  }
 
   return {
     props: {
       yesterday: {
-        temperature: filterWeatherByDate(temperatureYesterday, yesterday.getMonth(), yesterday.getDate()),
-        precipitation: filterWeatherByDate(precipacationYesterday, yesterday.getMonth(), yesterday.getDate()),
-        accidents: filerAccidentsByDate(
-          accidents,
-          yesterday.getMonth(),
-          yesterday.getDate(),
-          yesterday.getFullYear() - YEAR_OFFSET
-        )
+        temperature: filterWeatherByDate(yesterdayWeather[0], yesterday),
+        precipitation: filterWeatherByDate(yesterdayWeather[1], yesterday),
+        accidents: filerAccidentsByDate(accidents, yesterday)
       },
       today: {
-        temperature: filterWeatherByDate(temperatureToday, now.getMonth(), now.getDate()),
-        precipitation: filterWeatherByDate(precipicationToday, now.getMonth(), now.getDate()),
-        accidents: filerAccidentsByDate(accidents, now.getMonth(), now.getDate(), now.getFullYear() - YEAR_OFFSET)
+        temperature: filterWeatherByDate(temperatureToday, now),
+        precipitation: filterWeatherByDate(precipicationToday, now),
+        accidents: filerAccidentsByDate(accidents, now)
       },
       tomorrow: {
-        temperature: filterWeatherByDate(temperatureTomorrow, tomorrow.getMonth(), tomorrow.getDate()),
-        precipitation: filterWeatherByDate(precipitationTomorrow, tomorrow.getMonth(), tomorrow.getDate()),
-        accidents: filerAccidentsByDate(
-          accidents,
-          tomorrow.getMonth(),
-          tomorrow.getDate(),
-          tomorrow.getFullYear() - YEAR_OFFSET
-        )
+        temperature: filterWeatherByDate(tomorrowWeather[0], tomorrow),
+        precipitation: filterWeatherByDate(tomorrowWeather[1], tomorrow),
+        accidents: filerAccidentsByDate(accidents, tomorrow)
       }
     }
   }
