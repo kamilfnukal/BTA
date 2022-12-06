@@ -1,12 +1,16 @@
-import { useCallback } from 'react'
+import { useMemo } from 'react'
 import { Calendar } from 'react-feather'
 import { HomeDayCard } from '../components/molecules'
 import { HomePageProps } from '../types'
 
 const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => {
-  const getCurrentDate = useCallback(() => {
-    const t = new Date('2020-12-28').toLocaleString('en-us', { month: 'long', day: 'numeric' })
-    return t
+  const getCurrentDate = useMemo(() => {
+    const n = new Date().getDay()
+    const month = new Date().toLocaleString('en-us', { month: 'long' })
+
+    return (
+      n + (n > 3 && n < 21 ? 'th' : n % 10 == 1 ? 'st' : n % 10 == 2 ? 'nd' : n % 10 == 3 ? 'rd' : 'th') + ' ' + month
+    )
   }, [])
 
   return (
@@ -14,7 +18,7 @@ const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => 
       <div className="container lg:px-10 flex flex-col w-full mx-auto relative">
         <div className="absolute bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 -top-4 flex space-x-4 font-medium">
           <Calendar />
-          <span>{ getCurrentDate() }</span>
+          <span>{getCurrentDate}</span>
         </div>
 
         <div className="flex justify-center w-full">
