@@ -1,38 +1,23 @@
-import React, { Children } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
-import cx from 'classnames'
 import Link, { LinkProps } from 'next/link'
+import clsx from 'clsx'
 
-type NavLinkProps = React.PropsWithChildren<LinkProps> & {
-  activeClassName?: string
-}
+type NavLinkProps = React.PropsWithChildren<LinkProps>
 
-export const NavLink = ({
-  children,
-  activeClassName = 'text-blue-900 text-xl font-semibold border-b-4 border-b-blue-900 h-full flex items-center py-4',
-  ...props
-}: NavLinkProps) => {
+export const NavLink = ({ children, ...linkProps }: NavLinkProps) => {
   const { asPath } = useRouter()
-  const child = Children.only(children) as React.ReactElement
-  const childClassName = child.props.className || ''
 
-  const isActive = asPath === props.href || asPath === props.as
-
-  if (isActive) {
-    return (
-      <div className="text-blue-900 text-xl font-semibold border-b-4 border-b-blue-900 h-full flex items-center py-4">
-        {child}
-      </div>
-    )
-  }
-
-  const className = cx(childClassName, { [activeClassName]: isActive })
+  const isActive = asPath === linkProps.href || asPath === linkProps.as
 
   return (
-    <Link {...props}>
-      {React.cloneElement(child, {
-        className: className || null
-      })}
+    <Link
+      {...linkProps}
+      className={clsx(
+        isActive ? 'text-blue-800 font-semibold border-b-4 border-b-blue-800 flex items-center py-6' : ''
+      )}
+    >
+      {children}
     </Link>
   )
 }

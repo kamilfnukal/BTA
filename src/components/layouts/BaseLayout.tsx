@@ -23,9 +23,7 @@ const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
             </NavLink>
           </li>
           <li className="bg-lightblue rounded px-4 py-2 shadow hover:shadow-md hover:cursor-pointer">
-            <NavLink href="/auth/accidents/plan-trip">
-              <>Plan your next trip!</>
-            </NavLink>
+            <Link href="/auth/accidents/plan-trip">Plan your next trip!</Link>
           </li>
         </ul>
 
