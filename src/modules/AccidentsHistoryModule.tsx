@@ -6,6 +6,7 @@ import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
 import { BaseIconInput, CustomTransition } from '../components/atoms'
 import { Listbox, Transition } from '@headlessui/react'
+import moment from 'moment'
 
 type TableDay = {
   date: Date
@@ -45,7 +46,6 @@ const getForecast = (temperature: number | string, accidentsCount: number) => {
 const Table: React.FC<TableProps> = ({ days }) => {
   const { data: temp } = useTemperature()
 
-  // TODO: Show selected week OR selected date
   return (
     <div className="overflow-x-auto shadow-md">
       <table className="table table-zebra w-full">
@@ -231,14 +231,15 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const [selectedWeek, setSelectedWeek] = useState<string>()
   const [selectedDay, setSelectedDay] = useState<Date>()
 
+  console.log(new Date())
+
   return (
     <div className="container mx-auto px-10">
       <>
         <div className="flex mb-14 space-x-10 text-base">
           <div className="bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 flex space-x-4 font-medium items-center">
             <Calendar />
-            {/* TODO: Todays date */}
-            <span>17th November</span>
+            <span>{moment().format('Do MMMM')}</span>
           </div>
 
           <div className="flex space-x-4 items-center grow">
