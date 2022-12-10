@@ -179,11 +179,40 @@ function getWeeks(year: number): Date[][] {
   return weeks
 }
 
+function getFilteredData(
+  data: BrnoBikeAccidentsResponse,
+  selectedDay?: Date,
+  selectedWeek?: Date[]
+): BrnoBikeAccidentsResponse {
+  if (selectedDay) {
+    return data.filter((d) => d.attributes.datum === selectedDay.getTime())
+  }
+
+  return []
+}
+
+function getTableProps(
+  data: BrnoBikeAccidentsResponse,
+  selectedDay?: Date,
+  selectedWeek?: Date[]
+): [TableDay] | TableDay[] {
+  var filteredData = getFilteredData(data, selectedDay, selectedWeek)
+
+  if (selectedDay) {
+    return filteredData.length === 0 ? [] : [{ date: selectedDay, accidentsCount: filteredData.length }]
+  }
+
+  return []
+}
+
 const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const [query, setQuery] = useState('')
   const [showTable, setShowTable] = useState(true)
   const weeks = getWeeks(new Date().getFullYear())
-  const [selected, setSelected] = useState(undefined)
+  const [selectedWeek, setSelectedWeek] = useState(undefined)
+  const [selectedDay, setSelectedDay] = useState<Date>()
+
+  console.log(selectedDay?.getTime())
 
   return (
     <div className="container mx-auto px-10">
@@ -196,14 +225,14 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
           </div>
 
           <div className="flex space-x-4 items-center grow">
-            <Listbox value={selected} onChange={setSelected}>
+            <Listbox value={selectedWeek} onChange={setSelectedWeek}>
               <div>
                 <Listbox.Button
                   className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow"
-                  style={{ width: '500', paddingRight: selected ? '15px' : '85px' }}
+                  style={{ width: '500', paddingRight: selectedWeek ? '15px' : '85px' }}
                 >
                   <Calendar />
-                  <span className="block truncate">{selected ? selected : 'Select week'}</span>
+                  <span className="block truncate">{selectedWeek ? selectedWeek : 'Select week'}</span>
                   <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"></span>
                 </Listbox.Button>
                 <Transition
@@ -235,7 +264,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
 
             <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
               <Calendar />
-              <input type="date" defaultValue={new Date().toISOString().substring(0, 10)}></input>
+              <input type="date" onChange={(e) => setSelectedDay(new Date(e.target.value))}></input>
             </div>
 
             <BaseIconInput
@@ -265,7 +294,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
         </CustomTransition>
         <CustomTransition show={!query && showTable} afterLeave={() => setShowTable((v) => !v)}>
           {/* TODO: Change mock */}
-          <Table days={DAYS_MOCK} />
+          <Table days={getTableProps(data, selectedDay, selectedWeek)} />
         </CustomTransition>
       </>
     </div>
