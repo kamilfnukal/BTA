@@ -233,10 +233,9 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
               </div>
             </Listbox>
 
-            {/* TODO: Date picker */}
             <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
               <Calendar />
-              <span>Select day</span>
+              <input type="date" defaultValue={new Date().toISOString().substring(0, 10)}></input>
             </div>
 
             <BaseIconInput
