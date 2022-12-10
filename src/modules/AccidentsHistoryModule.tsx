@@ -116,17 +116,6 @@ const Accident: React.FC<AccidentProps> = ({ date, info }) => {
   )
 }
 
-const DAYS_MOCK = [
-  {
-    date: new Date(),
-    accidentsCount: 2
-  },
-  {
-    date: new Date('2022-11-26'),
-    accidentsCount: 2
-  }
-]
-
 type Props = {
   data: BrnoBikeAccidentsResponse
 }
@@ -182,10 +171,17 @@ function getWeeks(year: number): Date[][] {
 function getFilteredData(
   data: BrnoBikeAccidentsResponse,
   selectedDay?: Date,
-  selectedWeek?: Date[]
+  selectedWeekStart?: Date,
+  selectedWeekEnd?: Date
 ): BrnoBikeAccidentsResponse {
   if (selectedDay) {
     return data.filter((d) => d.attributes.datum === selectedDay.getTime())
+  }
+
+  if (selectedWeekStart && selectedWeekEnd) {
+    return data.filter(
+      (d) => d.attributes.datum <= selectedWeekStart.getTime() && d.attributes.datum <= selectedWeekEnd.getTime()
+    )
   }
 
   return []
@@ -194,12 +190,35 @@ function getFilteredData(
 function getTableProps(
   data: BrnoBikeAccidentsResponse,
   selectedDay?: Date,
-  selectedWeek?: Date[]
+  selectedWeek?: string
 ): [TableDay] | TableDay[] {
-  var filteredData = getFilteredData(data, selectedDay, selectedWeek)
+  const selectedWeekSplit = selectedWeek?.split(' - ')
+  var selectedWeekStart: Date | undefined = undefined
+  var selectedWeekEnd: Date | undefined = undefined
+
+  if (selectedWeekSplit?.length === 2) {
+    selectedWeekStart = new Date(selectedWeekSplit[0])
+    selectedWeekEnd = new Date(selectedWeekSplit[1])
+  }
+
+  var filteredData = getFilteredData(data, selectedDay, selectedWeekStart, selectedWeekEnd)
 
   if (selectedDay) {
-    return filteredData.length === 0 ? [] : [{ date: selectedDay, accidentsCount: filteredData.length }]
+    return [{ date: selectedDay, accidentsCount: filteredData.length }]
+  }
+
+  if (selectedWeekStart && selectedWeekEnd) {
+    const result: TableDay[] = []
+    var currentDate = selectedWeekStart
+
+    while (currentDate <= selectedWeekEnd) {
+      const currentDateData = getFilteredData(data, currentDate, undefined, undefined)
+      result.push({ date: currentDate, accidentsCount: currentDateData.length })
+
+      currentDate = new Date(currentDate.getTime() + 86400000)
+    }
+
+    return result
   }
 
   return []
@@ -209,10 +228,8 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const [query, setQuery] = useState('')
   const [showTable, setShowTable] = useState(true)
   const weeks = getWeeks(new Date().getFullYear())
-  const [selectedWeek, setSelectedWeek] = useState(undefined)
+  const [selectedWeek, setSelectedWeek] = useState<string>()
   const [selectedDay, setSelectedDay] = useState<Date>()
-
-  console.log(selectedDay?.getTime())
 
   return (
     <div className="container mx-auto px-10">
@@ -225,7 +242,13 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
           </div>
 
           <div className="flex space-x-4 items-center grow">
-            <Listbox value={selectedWeek} onChange={setSelectedWeek}>
+            <Listbox
+              value={selectedWeek}
+              onChange={(e) => {
+                setSelectedWeek(e)
+                setSelectedDay(undefined)
+              }}
+            >
               <div>
                 <Listbox.Button
                   className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow"
@@ -264,7 +287,13 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
 
             <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
               <Calendar />
-              <input type="date" onChange={(e) => setSelectedDay(new Date(e.target.value))}></input>
+              <input
+                type="date"
+                onChange={(e) => {
+                  setSelectedDay(new Date(e.target.value))
+                  setSelectedWeek(undefined)
+                }}
+              ></input>
             </div>
 
             <BaseIconInput
@@ -293,7 +322,6 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
           </div>
         </CustomTransition>
         <CustomTransition show={!query && showTable} afterLeave={() => setShowTable((v) => !v)}>
-          {/* TODO: Change mock */}
           <Table days={getTableProps(data, selectedDay, selectedWeek)} />
         </CustomTransition>
       </>
