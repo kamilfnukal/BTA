@@ -229,7 +229,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const [showTable, setShowTable] = useState(true)
   const weeks = getWeeks(new Date().getFullYear())
   const [selectedWeek, setSelectedWeek] = useState<string>()
-  const [selectedDay, setSelectedDay] = useState<Date>()
+  const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date())
 
   console.log(new Date())
 
@@ -294,6 +294,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
                   setSelectedDay(new Date(e.target.value))
                   setSelectedWeek(undefined)
                 }}
+                defaultValue={new Date().toISOString().substring(0, 10)}
               ></input>
             </div>
 
