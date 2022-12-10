@@ -1,10 +1,11 @@
 import Image from 'next/image'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
 import { BaseIconInput, CustomTransition } from '../components/atoms'
+import { Listbox, Transition } from '@headlessui/react'
 
 type TableDay = {
   date: Date
@@ -130,9 +131,59 @@ type Props = {
   data: BrnoBikeAccidentsResponse
 }
 
+function getWeeks(year: number): Date[][] {
+  // Create Date objects for the first and last days of the year
+  const firstDayOfYear = new Date(year, 0, 1)
+  const lastDayOfYear = new Date(year, 11, 31)
+  const firstDay = new Date(
+    firstDayOfYear.getTime() + 86400000 * (1 - (firstDayOfYear.getDay() == 0 ? 7 : firstDayOfYear.getDay()))
+  )
+  const lastDay = new Date(
+    lastDayOfYear.getTime() + 86400000 * (7 - (lastDayOfYear.getDay() == 0 ? 7 : lastDayOfYear.getDay()))
+  )
+
+  // Initialize an empty array of weeks, which will be populated with arrays of dates
+  const weeks: Date[][] = []
+
+  // Create a variable for the current week, which will be reset each time a new week is started
+  let currentWeek: Date[] = []
+
+  // Set the current date to the first day of the year
+  let currentDate = firstDay
+
+  // Loop through each day of the year until we reach the last day
+  while (currentDate <= lastDay) {
+    // Add the current date to the current week
+    if (currentDate.getDay() === 1 || currentDate.getDay() === 0) {
+      currentWeek.push(currentDate)
+    }
+
+    // If the current day is a Saturday (day 6 in the Date object),
+    // push the current week to the weeks array and reset the current week
+    if (currentDate.getDay() === 0) {
+      weeks.push(currentWeek)
+      currentWeek = []
+    }
+
+    // Move to the next day by adding one day's worth of milliseconds (86400000) to the current date
+    currentDate = new Date(currentDate.getTime() + 86400000)
+  }
+
+  // If there are any remaining days in the current week after the loop ends,
+  // push that array to the weeks array
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek)
+  }
+
+  // Return the weeks array
+  return weeks
+}
+
 const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const [query, setQuery] = useState('')
   const [showTable, setShowTable] = useState(true)
+  const weeks = getWeeks(new Date().getFullYear())
+  const [selected, setSelected] = useState(undefined)
 
   return (
     <div className="container mx-auto px-10">
@@ -145,11 +196,42 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
           </div>
 
           <div className="flex space-x-4 items-center grow">
-            {/* TODO: Week picker */}
-            <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
-              <Calendar />
-              <span>Week picker</span>
-            </div>
+            <Listbox value={selected} onChange={setSelected}>
+              <div>
+                <Listbox.Button
+                  className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow"
+                  style={{ width: '500', paddingRight: selected ? '15px' : '85px' }}
+                >
+                  <Calendar />
+                  <span className="block truncate">{selected ? selected : 'Select week'}</span>
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"></span>
+                </Listbox.Button>
+                <Transition
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Listbox.Options
+                    className="absolute mt-1 max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                    style={{ zIndex: '1000' }}
+                  >
+                    {weeks.map((week) => (
+                      <Listbox.Option
+                        className={({ active }) =>
+                          `relative cursor-default select-none py-2 px-5 ${
+                            active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                          }`
+                        }
+                        value={week.map((date) => new Intl.DateTimeFormat('en-US').format(date)).join(' - ')}
+                      >
+                        {week.map((date) => new Intl.DateTimeFormat('en-US').format(date)).join(' - ')}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </Transition>
+              </div>
+            </Listbox>
 
             {/* TODO: Date picker */}
             <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
