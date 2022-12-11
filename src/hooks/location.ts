@@ -6,25 +6,15 @@ import { DefinedLocation, UserLocation } from '../types/api'
 import CITY from '../../public/city4.jpeg'
 
 const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
-  // TODO: Remove from firebase
-}
-
-const pinLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
-  // TOOD: Update userlocation
-}
-
-export const usePinLocation = () => {
-  useMutation(pinLocation)
+  // TODO: Fetch user's location from firebase. Then remove the one with `locationId`
 }
 
 export const useRemoveUserLocation = () => {
   return useMutation(removeUserLocation)
 }
 
-const getUserLocation = async () => {
-  // TODO: Fetch from firebase
-  // const response = await axios.get('URL')
-  // return response.data
+const getUserLocation = async (userEmail: string | null | undefined) => {
+  // TODO: Fetch user's locations from firebase
 
   const USER_LOCATIONS_MOCK: UserLocation[] = [
     { locationId: 1, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Veveří', image: CITY, note: 'Home' },
@@ -38,12 +28,13 @@ const getUserLocation = async () => {
 
 export const useUserLocation = () => {
   const { data } = useSession()
-  return useQuery(['user-location', data?.user?.email], getUserLocation, {
-    staleTime: 60 * 60
+  return useQuery(['user-location', data?.user?.email], () => getUserLocation(data?.user?.email), {
+    // staleTime: 60 * 60
   })
 }
 
 const addUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
+  // TODO: Fetch user's location from firebase. Then add the one with `locationId`
   // TODO: Add user location to firebase
 }
 
@@ -53,6 +44,7 @@ export const useAddUserLocation = () => {
 
 export const getAllLocations = async () => {
   // TODO: Fetch all locations from Firebase
+  // No onSnapshot, but fetch once somehow - these will not change
 
   const LOCATIONS_MOCK: DefinedLocation[] = [
     { locationId: 1, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Veveří', image: CITY },
