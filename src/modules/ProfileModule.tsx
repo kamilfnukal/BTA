@@ -84,7 +84,7 @@ const UserPreferredLocations = () => {
   }, [])
 
   const onRemoveLocation = useCallback(
-    (locationId: number) => {
+    (locationId: string) => {
       removeUserLocation(
         { userEmail: session?.user?.email ?? '', locationId },
         {

@@ -48,6 +48,7 @@ export const locationsCollection = collection(
 
 // UserLocations collection
 export type UserLocation = {
+    id: string;
 	userId: string;
 	location: Location;
     note: string;
@@ -57,6 +58,9 @@ export const userLocationsCollection = collection(
 	db,
 	'userLocations'
 ) as CollectionReference<UserLocation>;
+
+export const userLocationsDocumentById = (id: string) => 
+	doc(db, 'userLocations', id) as DocumentReference<UserLocation>;
 
 // RecentlySearchedTrips collection
 export type RecentlySearchedTrips = {

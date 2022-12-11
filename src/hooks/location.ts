@@ -1,10 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
-import { locationsCollection, userLocationsCollection } from '../utils/firebase'
-import { getDocs, addDoc } from '@firebase/firestore'
+import { locationsCollection, userLocationsCollection, userLocationsDocumentById } from '../utils/firebase'
+import { getDocs, addDoc, deleteDoc, updateDoc } from '@firebase/firestore'
 
-const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
-  // TODO: Fetch user's location from firebase. Then remove the one with `locationId`
-}
+const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: string }) => {
+  const userLocationsByLocationId = (await getUserLocation(userEmail)).filter(x => x.location.id === locationId);
+
+  const idToBeDeleted = userLocationsByLocationId[0].id
+  await deleteDoc(userLocationsDocumentById(idToBeDeleted))}
 
 export const useRemoveUserLocation = () => {
   return useMutation(removeUserLocation)
@@ -19,11 +21,14 @@ const addUserLocation = async ({ userEmail, locationId, note }: { userEmail: str
   const userLocationsByLocationId = (await getUserLocation(userEmail)).filter(x => x.location.id === locationId);
 
   if (userLocationsByLocationId.length === 0) {
-    await addDoc(userLocationsCollection, {
+    var newDocRef = await addDoc(userLocationsCollection, {
+      id: "",
       userId: userEmail,
       location: location,
       note: note
     })
+
+    await updateDoc(newDocRef, {id: newDocRef.id})
   }
 }
 
