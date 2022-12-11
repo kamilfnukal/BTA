@@ -2,7 +2,7 @@ import { Navigation } from 'react-feather'
 import { BaseIconInput } from '../components/atoms'
 import { MapyczMap } from '../components/molecules'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../const'
-import { setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
+import { setDoc, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore'
 import {
   RecentlySearchedTrips,
   recentlySearchedTripsCollection,
@@ -19,6 +19,7 @@ type LabeledInputProps = {
 }
 
 const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord) => {
+  /* TODO: filter also by userId (also in other 2 methods) */
   var recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
     (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng
   )
@@ -32,6 +33,7 @@ const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTri
       to: to,
       searchedOn: new Date(),
       pinned: false,
+      /* TODO: set logged in user id */
       userId: 'temp'
     })
   } else {
@@ -56,6 +58,15 @@ const updatePin = async (recentlySearchedTrips: RecentlySearchedTrips[], from: C
   await updateDoc(documentRef, {
     pinned: !pinned
   })
+}
+
+const deleteRecentlySearchedTrip = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord) => {
+  var recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
+    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng
+  )
+
+  const idToBeUpdated = recentlySearchedByFromAndTo[0].id
+  await deleteDoc(recentlySearchedTripsDocumentById(idToBeUpdated))
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({ label, ...inputProps }) => {
@@ -92,6 +103,7 @@ const PlanTripModule: React.FC = () => {
 
         <div className="w-full flex justify-end mt-6">
           {/* TODO: to be removed since path is displayed dynamically */}
+          {/* TODO: change coordinates to selected places */}
           <button
             onClick={(_) =>
               createRecentlySearched(
@@ -109,24 +121,6 @@ const PlanTripModule: React.FC = () => {
             className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue"
           >
             Show the best route!
-          </button>
-          <button
-            onClick={(_) =>
-              updatePin(
-                recentlySearchedTrips,
-                {
-                  lat: 49.209,
-                  lng: 16.635
-                },
-                {
-                  lat: 49.209,
-                  lng: 16.635
-                }
-              )
-            }
-            className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue"
-          >
-            Pin trip
           </button>
         </div>
       </div>
