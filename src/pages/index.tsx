@@ -3,10 +3,17 @@ import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { Button } from '../components/atoms'
-import { HeroStats } from '../components/molecules'
-import { HeroCard } from '../components/molecules'
+import { HeroCard, HeroStats } from '../components/molecules'
+import { YEAR_OFFSET } from '../const'
+import { getBrnoBikeAccidents } from '../hooks/accidents'
 
-const LandingPage: NextPage = () => {
+type LandingPageProps = {
+  accidentsThisMonth: number
+  accidentsThisYear: number
+  accidentsAllTime: number
+}
+
+const LandingPage: NextPage<LandingPageProps> = ({ accidentsAllTime, accidentsThisYear, accidentsThisMonth }) => {
   const { data } = useSession()
   const router = useRouter()
 
@@ -41,17 +48,17 @@ const LandingPage: NextPage = () => {
             <HeroStats
               thisMonth={{
                 title: 'This month',
-                value: '15',
+                value: accidentsThisMonth,
                 desc: '↗︎ 1'
               }}
               thisYear={{
                 title: 'This year',
-                value: '210',
+                value: accidentsThisYear,
                 desc: '↗︎ 12 (22%)'
               }}
               allTime={{
                 title: 'All time',
-                value: '1,312',
+                value: accidentsAllTime,
                 desc: '↘︎ 90 (14%)'
               }}
             />
@@ -70,15 +77,25 @@ const LandingPage: NextPage = () => {
   )
 }
 
-// TODO: Fetch data about accidents and filter it
+//Fetch data about accidents and filter it
 //  - accidents this month
 //  - accidents this year
 //  - accidents all time
 // and return count for each (because we just display counts)
 // (You can reuse the logic from src/pages/auth/home)
 export const getStaticProps: GetStaticProps = async () => {
+  const now = new Date()
+  const year = now.getFullYear() - YEAR_OFFSET
+  const month = now.getMonth()
+
+  const accidents = await getBrnoBikeAccidents()
+
   return {
-    props: {}
+    props: {
+      accidentsThisMonth: accidents.filter(({ attributes: { mesic, rok } }) => mesic === month && rok === year).length,
+      accidentsThisYear: accidents.filter(({ attributes: { rok } }) => rok === year).length,
+      accidentsAllTime: accidents.length
+    }
   }
 }
 
