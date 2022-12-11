@@ -1,5 +1,4 @@
 import moment from 'moment'
-import { useMemo } from 'react'
 import { Calendar } from 'react-feather'
 import { HomeDayCard } from '../components/molecules'
 import { HomePageProps } from '../types'
