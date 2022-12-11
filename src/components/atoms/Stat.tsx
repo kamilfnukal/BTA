@@ -1,6 +1,6 @@
 type StatProps = {
   title: string
-  value: string
+  value: number
   desc: string
 }
 

@@ -1,8 +1,9 @@
 import { PropsWithChildren } from 'react'
 import Image from 'next/image'
 import LOGO from '../../../public/BBT_logo-b.png'
-import Link from 'next/link'
 import { signOut } from 'next-auth/react'
+import { NavLink } from '../atoms/NavLink'
+import Link from 'next/link'
 
 const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
@@ -11,11 +12,15 @@ const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
         <Image src={LOGO} alt="" className="mx-10 py-4" />
         <ul className="flex items-center space-x-10 container mx-auto px-10 grow">
           {/* Selected link */}
-          <li className="text-blue-900 text-xl font-semibold border-b-4 border-b-blue-900 h-full flex items-center py-4">
-            <Link href="/auth/home">Home</Link>
+          <li>
+            <NavLink href="/auth/home">
+              <>Home</>
+            </NavLink>
           </li>
           <li>
-            <Link href="/auth/accidents/history">Accidents</Link>
+            <NavLink href="/auth/accidents/history">
+              <>Accidents</>
+            </NavLink>
           </li>
           <li className="bg-lightblue rounded px-4 py-2 shadow hover:shadow-md hover:cursor-pointer">
             <Link href="/auth/accidents/plan-trip">Plan your next trip!</Link>
