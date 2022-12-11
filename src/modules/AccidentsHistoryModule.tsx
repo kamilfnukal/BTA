@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
@@ -7,6 +7,8 @@ import DUMMY_BIKE from '../../public/Blue-bike.svg'
 import { BaseIconInput, CustomTransition } from '../components/atoms'
 import { Listbox, Transition } from '@headlessui/react'
 import moment from 'moment'
+import { YEAR_OFFSET } from '../const'
+import { getWeeks } from '../utils'
 
 type TableDay = {
   date: Date
@@ -21,7 +23,7 @@ const getTemperatrue = (date: Date, temperatureData?: WeatherTemperatureResponse
   const month = date.getMonth()
   const d = date.getDate()
 
-  return temperatureData?.find((data) => data.month === month)?.[d] ?? 'Loading'
+  return temperatureData?.find((data) => data.month === month + 1)?.[d] ?? 'Loading'
 }
 
 const getForecast = (temperature: number | string, accidentsCount: number) => {
@@ -116,217 +118,136 @@ const Accident: React.FC<AccidentProps> = ({ date, info }) => {
   )
 }
 
+const getAccidentsCount = (accidents: BrnoBikeAccidentsResponse, date: Date) =>
+  accidents.filter(({ attributes: { datum } }) => {
+    const accidentDate = new Date(0)
+
+    // field `datum` is represented as miliseconds from epocha
+    accidentDate.setMilliseconds(datum)
+    return moment(date).isSame(accidentDate, 'day')
+  }).length
+
+const weeks = getWeeks(new Date().getFullYear() - YEAR_OFFSET)
+
+const formatWeekRange = (weekIndex: number) =>
+  weeks[weekIndex]
+    .filter((_, i) => i === 0 || i === weeks[weekIndex].length - 1)
+    .map((date) => new Intl.DateTimeFormat('en-US').format(date))
+    .join(' - ')
+
 type Props = {
   data: BrnoBikeAccidentsResponse
-}
-
-function getWeeks(year: number): Date[][] {
-  // Create Date objects for the first and last days of the year
-  const firstDayOfYear = new Date(year, 0, 1)
-  const lastDayOfYear = new Date(year, 11, 31)
-  const firstDay = new Date(
-    firstDayOfYear.getTime() + 86400000 * (1 - (firstDayOfYear.getDay() == 0 ? 7 : firstDayOfYear.getDay()))
-  )
-  const lastDay = new Date(
-    lastDayOfYear.getTime() + 86400000 * (7 - (lastDayOfYear.getDay() == 0 ? 7 : lastDayOfYear.getDay()))
-  )
-
-  // Initialize an empty array of weeks, which will be populated with arrays of dates
-  const weeks: Date[][] = []
-
-  // Create a variable for the current week, which will be reset each time a new week is started
-  let currentWeek: Date[] = []
-
-  // Set the current date to the first day of the year
-  let currentDate = firstDay
-
-  // Loop through each day of the year until we reach the last day
-  while (currentDate <= lastDay) {
-    // Add the current date to the current week
-    if (currentDate.getDay() === 1 || currentDate.getDay() === 0) {
-      currentWeek.push(currentDate)
-    }
-
-    // If the current day is a Saturday (day 6 in the Date object),
-    // push the current week to the weeks array and reset the current week
-    if (currentDate.getDay() === 0) {
-      weeks.push(currentWeek)
-      currentWeek = []
-    }
-
-    // Move to the next day by adding one day's worth of milliseconds (86400000) to the current date
-    currentDate = new Date(currentDate.getTime() + 86400000)
-  }
-
-  // If there are any remaining days in the current week after the loop ends,
-  // push that array to the weeks array
-  if (currentWeek.length > 0) {
-    weeks.push(currentWeek)
-  }
-
-  // Return the weeks array
-  return weeks
-}
-
-function getFilteredData(
-  data: BrnoBikeAccidentsResponse,
-  selectedDay?: Date,
-  selectedWeekStart?: Date,
-  selectedWeekEnd?: Date
-): BrnoBikeAccidentsResponse {
-  if (selectedDay) {
-    return data.filter((d) => d.attributes.datum === selectedDay.getTime())
-  }
-
-  if (selectedWeekStart && selectedWeekEnd) {
-    return data.filter(
-      (d) => d.attributes.datum <= selectedWeekStart.getTime() && d.attributes.datum <= selectedWeekEnd.getTime()
-    )
-  }
-
-  return []
-}
-
-function getTableProps(
-  data: BrnoBikeAccidentsResponse,
-  selectedDay?: Date,
-  selectedWeek?: string
-): [TableDay] | TableDay[] {
-  const selectedWeekSplit = selectedWeek?.split(' - ')
-  var selectedWeekStart: Date | undefined = undefined
-  var selectedWeekEnd: Date | undefined = undefined
-
-  if (selectedWeekSplit?.length === 2) {
-    selectedWeekStart = new Date(selectedWeekSplit[0])
-    selectedWeekEnd = new Date(selectedWeekSplit[1])
-  }
-
-  var filteredData = getFilteredData(data, selectedDay, selectedWeekStart, selectedWeekEnd)
-
-  if (selectedDay) {
-    return [{ date: selectedDay, accidentsCount: filteredData.length }]
-  }
-
-  if (selectedWeekStart && selectedWeekEnd) {
-    const result: TableDay[] = []
-    var currentDate = selectedWeekStart
-
-    while (currentDate <= selectedWeekEnd) {
-      const currentDateData = getFilteredData(data, currentDate, undefined, undefined)
-      result.push({ date: currentDate, accidentsCount: currentDateData.length })
-
-      currentDate = new Date(currentDate.getTime() + 86400000)
-    }
-
-    return result
-  }
-
-  return []
 }
 
 const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
   const [query, setQuery] = useState('')
   const [showTable, setShowTable] = useState(true)
-  const weeks = getWeeks(new Date().getFullYear())
-  const [selectedWeek, setSelectedWeek] = useState<string>()
+
+  const [selectedWeekIndex, setSelectedWeekIndex] = useState<number | null>(null)
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date())
 
-  console.log(new Date())
+  const filteredDays = useMemo(() => {
+    if (selectedDay) {
+      const accidentsCount = getAccidentsCount(data, selectedDay)
+      return [{ date: selectedDay, accidentsCount }]
+    }
+
+    return weeks[selectedWeekIndex!].map((date) => ({ date, accidentsCount: getAccidentsCount(data, date) }))
+  }, [selectedDay, selectedWeekIndex])
 
   return (
     <div className="container mx-auto px-10">
-      <>
-        <div className="flex mb-14 space-x-10 text-base">
-          <div className="bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 flex space-x-4 font-medium items-center">
-            <Calendar />
-            <span>{moment().format('Do MMMM')}</span>
-          </div>
-
-          <div className="flex space-x-4 items-center grow">
-            <Listbox
-              value={selectedWeek}
-              onChange={(e) => {
-                setSelectedWeek(e)
-                setSelectedDay(undefined)
-              }}
-            >
-              <div>
-                <Listbox.Button
-                  className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow"
-                  style={{ width: '500', paddingRight: selectedWeek ? '15px' : '85px' }}
-                >
-                  <Calendar />
-                  <span className="block truncate">{selectedWeek ? selectedWeek : 'Select week'}</span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"></span>
-                </Listbox.Button>
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options
-                    className="absolute mt-1 max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                    style={{ zIndex: '1000' }}
-                  >
-                    {weeks.map((week) => (
-                      <Listbox.Option
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 px-5 ${
-                            active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                          }`
-                        }
-                        value={week.map((date) => new Intl.DateTimeFormat('en-US').format(date)).join(' - ')}
-                      >
-                        {week.map((date) => new Intl.DateTimeFormat('en-US').format(date)).join(' - ')}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </Transition>
-              </div>
-            </Listbox>
-
-            <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
-              <Calendar />
-              <input
-                type="date"
-                onChange={(e) => {
-                  setSelectedDay(new Date(e.target.value))
-                  setSelectedWeek(undefined)
-                }}
-                defaultValue={new Date().toISOString().substring(0, 10)}
-              ></input>
-            </div>
-
-            <BaseIconInput
-              id="accident-query"
-              extraWrapperClasses="grow"
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search accident..."
-              Icon={Search}
-              note={
-                <>
-                  <span>Search in all </span>
-                  <span className="text-blue-800">{data.length} </span>
-                  <span>accidents</span>
-                </>
-              }
-            />
-          </div>
+      <div className="flex mb-14 space-x-10 text-base">
+        <div className="bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 flex space-x-4 font-medium items-center">
+          <Calendar />
+          <span>{moment().format('Do MMMM')}</span>
         </div>
 
-        <CustomTransition show={!!query && !showTable} afterLeave={() => setShowTable((v) => !v)}>
-          {/* TODO: Found accidents view */}
-          <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
-            {[1, 2, 3, 4].map((v) => (
-              <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
-            ))}
+        <div className="flex space-x-4 items-center grow">
+          <Listbox
+            value={selectedWeekIndex}
+            onChange={(v) => {
+              setSelectedWeekIndex(v)
+              setSelectedDay(undefined)
+            }}
+          >
+            <div>
+              <Listbox.Button className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow">
+                <Calendar />
+
+                {/* TODO: Selected week view */}
+                <span className="block truncate">
+                  {selectedWeekIndex !== null ? formatWeekRange(selectedWeekIndex) : 'Select week'}
+                </span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"></span>
+              </Listbox.Button>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options
+                  className="absolute mt-1 max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                  style={{ zIndex: '1000' }}
+                >
+                  {weeks.map((week, weekIndex) => (
+                    <Listbox.Option
+                      className={({ active }) =>
+                        `relative cursor-default select-none py-2 px-5 ${
+                          active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                        }`
+                      }
+                      value={weekIndex}
+                    >
+                      {formatWeekRange(weekIndex)}
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
+
+          <div className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white px-4 py-2 shadow">
+            <Calendar />
+            <input
+              type="date"
+              onChange={(e) => {
+                setSelectedDay(new Date(e.target.value))
+                setSelectedWeekIndex(null)
+              }}
+              defaultValue={new Date().toISOString().substring(0, 10)}
+            ></input>
           </div>
-        </CustomTransition>
-        <CustomTransition show={!query && showTable} afterLeave={() => setShowTable((v) => !v)}>
-          <Table days={getTableProps(data, selectedDay, selectedWeek)} />
-        </CustomTransition>
-      </>
+
+          <BaseIconInput
+            id="accident-query"
+            extraWrapperClasses="grow"
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search accident..."
+            Icon={Search}
+            note={
+              <>
+                <span>Search in all </span>
+                <span className="text-blue-800">{data.length} </span>
+                <span>accidents</span>
+              </>
+            }
+          />
+        </div>
+      </div>
+
+      <CustomTransition show={!!query && !showTable} afterLeave={() => setShowTable((v) => !v)}>
+        {/* TODO: Found accidents view */}
+        <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
+          {[1, 2, 3, 4].map((v) => (
+            <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
+          ))}
+        </div>
+      </CustomTransition>
+      <CustomTransition show={!query && showTable} afterLeave={() => setShowTable((v) => !v)}>
+        <Table days={filteredDays} />
+      </CustomTransition>
     </div>
   )
 }
