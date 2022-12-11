@@ -49,7 +49,7 @@ export const locationsCollection = collection(
 // UserLocations collection
 export type UserLocation = {
     id: string;
-	userId: string;
+	userEmail: string;
 	location: Location;
     note: string;
 };
@@ -69,7 +69,7 @@ export type RecentlySearchedTrips = {
     to: Coord;
     searchedOn: Date;
     pinned: boolean;
-    userId: string;
+    userEmail: string;
 };
 
 export const recentlySearchedTripsCollection = collection(

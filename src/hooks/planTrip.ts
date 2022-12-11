@@ -45,7 +45,7 @@ const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTri
       searchedOn: new Date(),
       pinned: false,
       /* TODO: set logged in user id */
-      userId: 'temp'
+      userEmail: 'temp'
     })
 
     await updateDoc(newDocRef, {id: newDocRef.id})

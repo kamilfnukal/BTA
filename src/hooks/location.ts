@@ -13,7 +13,7 @@ export const useRemoveUserLocation = () => {
 }
 
 const getUserLocation = async (userEmail: string | null | undefined) => {
-  return await getDocs(userLocationsCollection).then(l => l.docs.map(x => x.data()))
+  return await getDocs(userLocationsCollection).then(l => l.docs.map(x => x.data()).filter(x => x.userEmail === userEmail))
 }
 
 const addUserLocation = async ({ userEmail, locationId, note }: { userEmail: string; locationId: string, note: string }) => {
@@ -23,7 +23,7 @@ const addUserLocation = async ({ userEmail, locationId, note }: { userEmail: str
   if (userLocationsByLocationId.length === 0) {
     var newDocRef = await addDoc(userLocationsCollection, {
       id: "",
-      userId: userEmail,
+      userEmail: userEmail,
       location: location,
       note: note
     })

@@ -75,7 +75,7 @@ const UserPreferredLocations = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(userLocationsCollection, (snapshot) => {
-      setUserLocations(snapshot.docs.map((doc) => doc.data()))
+      setUserLocations(snapshot.docs.map((doc) => doc.data()).filter((x) => x.userEmail === session?.user?.email ?? ''))
     })
 
     return () => {
