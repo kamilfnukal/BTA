@@ -1,9 +1,9 @@
 import { GetStaticProps, NextPage } from 'next'
 import { getAllLocations } from '../../hooks/location'
 import { ProfileModule, ProtectedModule } from '../../modules'
-import { DefinedLocation } from '../../types/api'
+import { Location } from '../../utils/firebase'
 
-const ProfilePage: NextPage<{ definedLocations: DefinedLocation[] }> = (props) => (
+const ProfilePage: NextPage<{ definedLocations: Location[] }> = (props) => (
   <ProtectedModule>
     <ProfileModule {...props} />
   </ProtectedModule>

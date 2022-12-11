@@ -6,10 +6,10 @@ import { useCallback, useState } from 'react'
 import { LocationCard } from '../components/molecules'
 import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
-import { DefinedLocation } from '../types/api'
+import { Location } from '../utils/firebase'
 
 type AddLocationSelectProps = {
-  locations: DefinedLocation[]
+  locations: Location[]
 }
 
 const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
@@ -18,7 +18,7 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
   const { mutate: addUserLocation } = useAddUserLocation()
 
   const onAddLocation = useCallback(
-    (locationId: number) => {
+    (locationId: string) => {
       addUserLocation(
         { userEmail: session?.user?.email ?? '', locationId },
         {
@@ -46,9 +46,9 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
         />
         <CustomTransition show={query !== ''} afterLeave={() => undefined}>
           <div className="absolute top-12 bg-white w-full rounded py-4 shadow-xl flex flex-col">
-            {locations.map(({ name, image, locationId }) => (
+            {locations.map(({ name, image, id }) => (
               <button
-                onClick={() => onAddLocation(locationId)}
+                onClick={() => onAddLocation(id)}
                 className="flex space-x-4 items-center px-4 py-1 hover:bg-lightpurple/50 hover:cursor-pointer group"
               >
                 <Image src={image} alt="" className="h-8 w-8 rounded-lg" />
@@ -93,7 +93,7 @@ const UserPreferredLocations = () => {
   )
 }
 
-const ProfileModule: React.FC<{ definedLocations: DefinedLocation[] }> = ({ definedLocations }) => {
+const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLocations }) => {
   const { data: session } = useSession()
 
   return (

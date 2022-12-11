@@ -77,3 +77,4 @@ export const recentlySearchedTripsDocument =
 
 export const recentlySearchedTripsDocumentById = (id: string) => 
 	doc(db, 'recentlySearchedTrips', id) as DocumentReference<RecentlySearchedTrips>;
+

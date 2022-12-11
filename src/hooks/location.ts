@@ -1,9 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { DefinedLocation, UserLocation } from '../types/api'
 
 import CITY from '../../public/city4.jpeg'
+import { locationsCollection } from '../utils/firebase'
+import { getDocs } from '@firebase/firestore'
+import { clearScreenDown } from 'readline'
+import { X } from 'react-feather'
 
 const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
   // TODO: Fetch user's location from firebase. Then remove the one with `locationId`
@@ -33,7 +36,7 @@ export const useUserLocation = () => {
   })
 }
 
-const addUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
+const addUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: string }) => {
   // TODO: Fetch user's location from firebase. Then add the one with `locationId`
   // TODO: Add user location to firebase
 }
@@ -43,15 +46,5 @@ export const useAddUserLocation = () => {
 }
 
 export const getAllLocations = async () => {
-  // TODO: Fetch all locations from Firebase
-  // No onSnapshot, but fetch once somehow - these will not change
-
-  const LOCATIONS_MOCK: DefinedLocation[] = [
-    { locationId: 1, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Veveří', image: CITY },
-    { locationId: 2, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Ponava', image: CITY },
-    { locationId: 3, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Střed', image: CITY },
-    { locationId: 4, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Hlavní Nádraží', image: CITY }
-  ]
-
-  return LOCATIONS_MOCK
+  return await getDocs(locationsCollection).then(l => l.docs.map(x => x.data()))
 }
