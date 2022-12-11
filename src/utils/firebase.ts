@@ -21,17 +21,6 @@ initializeApp({
 // Firestore
 const db = getFirestore();
 
-// Users collection
-export type User = {
-	id: string;
-	name: string;
-};
-
-export const usersCollection = collection(
-	db,
-	'users'
-) as CollectionReference<User>;
-
 // Locations collection
 export type Location = {
 	id: string;
@@ -76,9 +65,6 @@ export const recentlySearchedTripsCollection = collection(
 	db,
 	'recentlySearchedTrips'
 ) as CollectionReference<RecentlySearchedTrips>;
-
-export const recentlySearchedTripsDocument =
-	doc(collection(db, 'recentlySearchedTrips')) as DocumentReference<RecentlySearchedTrips>;
 
 export const recentlySearchedTripsDocumentById = (id: string) => 
 	doc(db, 'recentlySearchedTrips', id) as DocumentReference<RecentlySearchedTrips>;
