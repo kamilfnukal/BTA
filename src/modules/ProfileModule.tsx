@@ -1,12 +1,13 @@
 import CITY from '../../public/city4.jpeg'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
-import { useAddUserLocation, useRemoveUserLocation, useUserLocation } from '../hooks/location'
-import { useCallback, useState } from 'react'
+import { useAddUserLocation, useRemoveUserLocation } from '../hooks/location'
+import { useCallback, useEffect, useState } from 'react'
 import { LocationCard } from '../components/molecules'
 import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
-import { Location } from '../utils/firebase'
+import { Location, UserLocation, userLocationsCollection } from '../utils/firebase'
+import { onSnapshot } from 'firebase/firestore'
 
 type AddLocationSelectProps = {
   locations: Location[]
@@ -20,7 +21,8 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
   const onAddLocation = useCallback(
     (locationId: string) => {
       addUserLocation(
-        { userEmail: session?.user?.email ?? '', locationId },
+        /* TODO: get note from somewhere */
+        { userEmail: session?.user?.email ?? '', locationId, note: 'School' },
         {
           onSuccess: () => {
             console.log('Location successfully added')
@@ -68,8 +70,18 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
 
 const UserPreferredLocations = () => {
   const { data: session } = useSession()
-  const { data: userLocations } = useUserLocation()
   const { mutate: removeUserLocation } = useRemoveUserLocation()
+  const [userLocations, setUserLocations] = useState<UserLocation[]>([])
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(userLocationsCollection, (snapshot) => {
+      setUserLocations(snapshot.docs.map((doc) => doc.data()))
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [])
 
   const onRemoveLocation = useCallback(
     (locationId: number) => {

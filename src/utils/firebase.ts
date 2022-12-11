@@ -47,15 +47,16 @@ export const locationsCollection = collection(
 ) as CollectionReference<Location>;
 
 // UserLocations collection
-export type UserLocations = {
+export type UserLocation = {
 	userId: string;
-	locationId: string;
+	location: Location;
+    note: string;
 };
 
 export const userLocationsCollection = collection(
 	db,
 	'userLocations'
-) as CollectionReference<UserLocations>;
+) as CollectionReference<UserLocation>;
 
 // RecentlySearchedTrips collection
 export type RecentlySearchedTrips = {

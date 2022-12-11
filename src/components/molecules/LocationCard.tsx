@@ -1,38 +1,27 @@
-import { UserLocation } from '../../types/api'
 import Image from 'next/image'
 import clsx from 'clsx'
 import { Bookmark, X } from 'react-feather'
+import { UserLocation } from '../../utils/firebase'
 
 type LocationCardProps = UserLocation & {
-  onRemove: (id: number) => void
-  onPin?: (locationId: number) => void
+  onRemove: (id: string) => void
+  onPin?: (id: string) => void
   pinned?: boolean
 }
 
-export const LocationCard: React.FC<LocationCardProps> = ({
-  onRemove,
-  pinned = false,
-  onPin,
-  image,
-  lng,
-  name,
-  lat,
-  distance,
-  note,
-  locationId
-}) => {
+export const LocationCard: React.FC<LocationCardProps> = ({ onRemove, pinned = false, onPin, location, note }) => {
   return (
     <div className="shadow-md border border-lighterblue py-3 px-10 rounded-lg flex justify-between relative">
       <div className="flex space-x-4">
-        <Image src={image} alt="" className="w-14 h-14 rounded-lg" />
+        <Image src={location.image} alt="" className="w-14 h-14 rounded-lg" />
         <div className="flex flex-col justify-between py-1">
-          <h3 className="text-blue-800 font-semibold text-xl">{name}</h3>
+          <h3 className="text-blue-800 font-semibold text-xl">{location.name}</h3>
           <div className="flex space-x-2 text-xs">
-            <span>{lng}</span>
+            <span>{location.coordinate.lng}</span>
             <span>&bull;</span>
-            <span>{lat}</span>
+            <span>{location.coordinate.lat}</span>
             <span>&bull;</span>
-            <span>{distance}</span>
+            <span>{location.distance}</span>
           </div>
         </div>
       </div>
@@ -43,7 +32,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
           </div>
         )}
         <button
-          onClick={() => onRemove(locationId)}
+          onClick={() => onRemove(location.id)}
           className="flex items-center space-x-2 px-1 py-[2px] hover:text-red-700 hover:underline hover:underline-offset-4 hover:translate-x-3 hover:duration-500 group"
         >
           <X size={16} className="group-hover:opacity-50" />
@@ -53,7 +42,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
 
       {pinned && onPin && (
         <button
-          onClick={() => onPin(locationId)}
+          onClick={() => onPin(location.id)}
           className="absolute -top-1 -right-1 h-6 w-6 bg-blue-800 grid place-items-center text-white rounded-full group hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
         >
           <div className="group-hover:hidden">

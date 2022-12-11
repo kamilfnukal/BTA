@@ -1,12 +1,6 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useSession } from 'next-auth/react'
-import { DefinedLocation, UserLocation } from '../types/api'
-
-import CITY from '../../public/city4.jpeg'
-import { locationsCollection } from '../utils/firebase'
-import { getDocs } from '@firebase/firestore'
-import { clearScreenDown } from 'readline'
-import { X } from 'react-feather'
+import { useMutation } from '@tanstack/react-query'
+import { locationsCollection, userLocationsCollection } from '../utils/firebase'
+import { getDocs, addDoc } from '@firebase/firestore'
 
 const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
   // TODO: Fetch user's location from firebase. Then remove the one with `locationId`
@@ -17,28 +11,20 @@ export const useRemoveUserLocation = () => {
 }
 
 const getUserLocation = async (userEmail: string | null | undefined) => {
-  // TODO: Fetch user's locations from firebase
-
-  const USER_LOCATIONS_MOCK: UserLocation[] = [
-    { locationId: 1, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Veveří', image: CITY, note: 'Home' },
-    { locationId: 2, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Ponava', image: CITY, note: 'Uni' },
-    { locationId: 3, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Střed', image: CITY, note: 'Work' },
-    { locationId: 4, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Hlavní Nádraží', image: CITY }
-  ]
-
-  return USER_LOCATIONS_MOCK
+  return await getDocs(userLocationsCollection).then(l => l.docs.map(x => x.data()))
 }
 
-export const useUserLocation = () => {
-  const { data } = useSession()
-  return useQuery(['user-location', data?.user?.email], () => getUserLocation(data?.user?.email), {
-    // staleTime: 60 * 60
-  })
-}
+const addUserLocation = async ({ userEmail, locationId, note }: { userEmail: string; locationId: string, note: string }) => {
+  const location = (await getAllLocations()).filter(x => x.id === locationId)[0]
+  const userLocationsByLocationId = (await getUserLocation(userEmail)).filter(x => x.location.id === locationId);
 
-const addUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: string }) => {
-  // TODO: Fetch user's location from firebase. Then add the one with `locationId`
-  // TODO: Add user location to firebase
+  if (userLocationsByLocationId.length === 0) {
+    await addDoc(userLocationsCollection, {
+      userId: userEmail,
+      location: location,
+      note: note
+    })
+  }
 }
 
 export const useAddUserLocation = () => {
