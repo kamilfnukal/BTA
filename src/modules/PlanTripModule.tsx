@@ -19,7 +19,9 @@ type LabeledInputProps = {
 }
 
 const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord) => {
-  var recentlySearchedByFromAndTo = recentlySearchedTrips.filter((x) => x.from === from && x.to === to)
+  var recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
+    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng
+  )
 
   if (recentlySearchedByFromAndTo.length === 0) {
     const newDocRef = recentlySearchedTripsDocument
@@ -40,6 +42,20 @@ const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTri
       searchedOn: new Date()
     })
   }
+}
+
+const updatePin = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord) => {
+  var recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
+    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng
+  )
+
+  const idToBeUpdated = recentlySearchedByFromAndTo[0].id
+  const pinned = recentlySearchedByFromAndTo[0].pinned
+
+  const documentRef = recentlySearchedTripsDocumentById(idToBeUpdated)
+  await updateDoc(documentRef, {
+    pinned: !pinned
+  })
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({ label, ...inputProps }) => {
@@ -65,10 +81,6 @@ const PlanTripModule: React.FC = () => {
       unsubscribe()
     }
   }, [])
-
-  recentlySearchedTrips.forEach((trip) => {
-    console.log(trip.from, trip.to, trip.id, trip.searchedOn, trip.pinned)
-  })
 
   return (
     <div className="flex -mt-10 3xl:container 3xl:mx-auto w-full grow">
@@ -98,7 +110,24 @@ const PlanTripModule: React.FC = () => {
           >
             Show the best route!
           </button>
-          <button className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue">Pin trip</button>
+          <button
+            onClick={(_) =>
+              updatePin(
+                recentlySearchedTrips,
+                {
+                  lat: 49.209,
+                  lng: 16.635
+                },
+                {
+                  lat: 49.209,
+                  lng: 16.635
+                }
+              )
+            }
+            className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue"
+          >
+            Pin trip
+          </button>
         </div>
       </div>
 
