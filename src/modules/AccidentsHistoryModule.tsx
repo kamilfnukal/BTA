@@ -175,7 +175,6 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
               <Listbox.Button className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow">
                 <Calendar />
 
-                {/* TODO: Selected week view */}
                 <span className="block truncate">
                   {selectedWeekIndex !== null ? formatWeekRange(selectedWeekIndex) : 'Select week'}
                 </span>
@@ -191,7 +190,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
                   className="absolute mt-1 max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                   style={{ zIndex: '1000' }}
                 >
-                  {weeks.map((week, weekIndex) => (
+                  {weeks.map((_, weekIndex) => (
                     <Listbox.Option
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 px-5 ${
