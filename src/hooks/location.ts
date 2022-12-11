@@ -1,12 +1,20 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
-import { UserLocation } from '../types/api'
+import { DefinedLocation, UserLocation } from '../types/api'
 
 import CITY from '../../public/city4.jpeg'
 
 const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
   // TODO: Remove from firebase
+}
+
+const pinLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
+  // TOOD: Update userlocation
+}
+
+export const usePinLocation = () => {
+  useMutation(pinLocation)
 }
 
 export const useRemoveUserLocation = () => {
@@ -33,4 +41,25 @@ export const useUserLocation = () => {
   return useQuery(['user-location', data?.user?.email], getUserLocation, {
     staleTime: 60 * 60
   })
+}
+
+const addUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: number }) => {
+  // TODO: Add user location to firebase
+}
+
+export const useAddUserLocation = () => {
+  return useMutation(addUserLocation)
+}
+
+export const getAllLocations = async () => {
+  // TODO: Fetch all locations from Firebase
+
+  const LOCATIONS_MOCK: DefinedLocation[] = [
+    { locationId: 1, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Veveří', image: CITY },
+    { locationId: 2, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Ponava', image: CITY },
+    { locationId: 3, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Střed', image: CITY },
+    { locationId: 4, lng: 48.1201, lat: 16.1201, distance: 0.2, name: 'Brno - Hlavní Nádraží', image: CITY }
+  ]
+
+  return LOCATIONS_MOCK
 }

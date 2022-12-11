@@ -1,16 +1,18 @@
 import { UserLocation } from '../../types/api'
 import Image from 'next/image'
 import clsx from 'clsx'
-import { X } from 'react-feather'
+import { Bookmark, X } from 'react-feather'
 
 type LocationCardProps = UserLocation & {
   onRemove: (id: number) => void
-  canPin?: boolean
+  onPin?: (locationId: number) => void
+  pinned?: boolean
 }
 
 export const LocationCard: React.FC<LocationCardProps> = ({
   onRemove,
-  canPin,
+  pinned = false,
+  onPin,
   image,
   lng,
   name,
@@ -20,7 +22,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
   locationId
 }) => {
   return (
-    <div className="shadow-md border border-lighterblue py-3 px-10 rounded-lg flex justify-between">
+    <div className="shadow-md border border-lighterblue py-3 px-10 rounded-lg flex justify-between relative">
       <div className="flex space-x-4">
         <Image src={image} alt="" className="w-14 h-14 rounded-lg" />
         <div className="flex flex-col justify-between py-1">
@@ -48,6 +50,20 @@ export const LocationCard: React.FC<LocationCardProps> = ({
           <span className="text-sm">Remove</span>
         </button>
       </div>
+
+      {pinned && onPin && (
+        <button
+          onClick={() => onPin(locationId)}
+          className="absolute -top-1 -right-1 h-6 w-6 bg-blue-800 grid place-items-center text-white rounded-full group hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
+        >
+          <div className="group-hover:hidden">
+            <Bookmark size={12} />
+          </div>
+          <div className="hidden group-hover:block text-blue-800">
+            <X size={18} />
+          </div>
+        </button>
+      )}
     </div>
   )
 }

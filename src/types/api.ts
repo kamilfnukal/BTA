@@ -13,10 +13,13 @@ export type WeatherPrecipitationResponse = ({
 
 export type WeatherTemperatureResponse = WeatherPrecipitationResponse
 
-export type UserLocation = Coord & {
+export type DefinedLocation = Coord & {
   locationId: number
   distance: number
   name: string
   image: StaticImageData
+}
+
+export type UserLocation = DefinedLocation & {
   note?: string
 }
