@@ -1,7 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import {
 	collection,
+    doc,
 	CollectionReference,
+    DocumentReference,
 	getFirestore,
 } from 'firebase/firestore';
 import { Coord } from '../types';
@@ -39,7 +41,7 @@ export type Location = {
     image: string;
 };
 
-export const matchesCollection = collection(
+export const locationsCollection = collection(
 	db,
 	'locations'
 ) as CollectionReference<Location>;
@@ -57,6 +59,7 @@ export const userLocationsCollection = collection(
 
 // RecentlySearchedTrips collection
 export type RecentlySearchedTrips = {
+    id: string;
     from: Coord;
     to: Coord;
     searchedOn: Date;
@@ -68,3 +71,9 @@ export const recentlySearchedTripsCollection = collection(
 	db,
 	'recentlySearchedTrips'
 ) as CollectionReference<RecentlySearchedTrips>;
+
+export const recentlySearchedTripsDocument =
+	doc(collection(db, 'recentlySearchedTrips')) as DocumentReference<RecentlySearchedTrips>;
+
+export const recentlySearchedTripsDocumentById = (id: string) => 
+	doc(db, 'recentlySearchedTrips', id) as DocumentReference<RecentlySearchedTrips>;

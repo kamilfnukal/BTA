@@ -2,11 +2,44 @@ import { Navigation } from 'react-feather'
 import { BaseIconInput } from '../components/atoms'
 import { MapyczMap } from '../components/molecules'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../const'
+import { setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
+import {
+  RecentlySearchedTrips,
+  recentlySearchedTripsCollection,
+  recentlySearchedTripsDocument,
+  recentlySearchedTripsDocumentById
+} from '../utils/firebase'
+import { useEffect, useState } from 'react'
+import { Coord } from '../types'
 
 type LabeledInputProps = {
   id: string
   label: string
   placeholder: string
+}
+
+const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord) => {
+  var recentlySearchedByFromAndTo = recentlySearchedTrips.filter((x) => x.from === from && x.to === to)
+
+  if (recentlySearchedByFromAndTo.length === 0) {
+    const newDocRef = recentlySearchedTripsDocument
+
+    await setDoc(newDocRef, {
+      id: newDocRef.id,
+      from: from,
+      to: to,
+      searchedOn: new Date(),
+      pinned: false,
+      userId: 'temp'
+    })
+  } else {
+    const idToBeUpdated = recentlySearchedByFromAndTo[0].id
+
+    const documentRef = recentlySearchedTripsDocumentById(idToBeUpdated)
+    await updateDoc(documentRef, {
+      searchedOn: new Date()
+    })
+  }
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({ label, ...inputProps }) => {
@@ -21,6 +54,22 @@ const LabeledInput: React.FC<LabeledInputProps> = ({ label, ...inputProps }) => 
 }
 
 const PlanTripModule: React.FC = () => {
+  const [recentlySearchedTrips, setrecentlySearchedTrips] = useState<RecentlySearchedTrips[]>([])
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(recentlySearchedTripsCollection, (snapshot) => {
+      setrecentlySearchedTrips(snapshot.docs.map((doc) => doc.data()))
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [])
+
+  recentlySearchedTrips.forEach((trip) => {
+    console.log(trip.from, trip.to, trip.id, trip.searchedOn, trip.pinned)
+  })
+
   return (
     <div className="flex -mt-10 3xl:container 3xl:mx-auto w-full grow">
       <div className="w-5/12 flex flex-col px-10">
@@ -31,9 +80,25 @@ const PlanTripModule: React.FC = () => {
 
         <div className="w-full flex justify-end mt-6">
           {/* TODO: to be removed since path is displayed dynamically */}
-          <button className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue">
+          <button
+            onClick={(_) =>
+              createRecentlySearched(
+                recentlySearchedTrips,
+                {
+                  lat: 49.209,
+                  lng: 16.635
+                },
+                {
+                  lat: 49.209,
+                  lng: 16.635
+                }
+              )
+            }
+            className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue"
+          >
             Show the best route!
           </button>
+          <button className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue">Pin trip</button>
         </div>
       </div>
 
