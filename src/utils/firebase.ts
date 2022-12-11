@@ -4,6 +4,7 @@ import {
 	CollectionReference,
 	getFirestore,
 } from 'firebase/firestore';
+import { Coord } from '../types';
 
 // Initialize Firebase
 initializeApp({
@@ -32,11 +33,10 @@ export const usersCollection = collection(
 // Locations collection
 export type Location = {
 	id: string;
-    latitude: number;
-    longitude: number;
+    coordinate: Coord;
     distance: number;
 	name: string;
-    pinned: boolean;
+    image: string;
 };
 
 export const matchesCollection = collection(
@@ -54,3 +54,17 @@ export const userLocationsCollection = collection(
 	db,
 	'userLocations'
 ) as CollectionReference<UserLocations>;
+
+// RecentlySearchedTrips collection
+export type RecentlySearchedTrips = {
+    from: Coord;
+    to: Coord;
+    searchedOn: Date;
+    pinned: boolean;
+    userId: string;
+};
+
+export const recentlySearchedTripsCollection = collection(
+	db,
+	'recentlySearchedTrips'
+) as CollectionReference<RecentlySearchedTrips>;
