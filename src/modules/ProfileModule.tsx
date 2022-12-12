@@ -1,7 +1,7 @@
 import CITY from '../../public/city4.jpeg'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
-import { useAddUserLocation, useRemoveUserLocation } from '../hooks/location'
+import { useAddUserLocation, useRemoveUserLocation, useUserLocations } from '../hooks/location'
 import { useCallback, useEffect, useState } from 'react'
 import { LocationCard } from '../components/molecules'
 import { Plus, Search } from 'react-feather'
@@ -71,17 +71,7 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
 const UserPreferredLocations = () => {
   const { data: session } = useSession()
   const { mutate: removeUserLocation } = useRemoveUserLocation()
-  const [userLocations, setUserLocations] = useState<UserLocation[]>([])
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(userLocationsCollection, (snapshot) => {
-      setUserLocations(snapshot.docs.map((doc) => doc.data()).filter((x) => x.userEmail === session?.user?.email ?? ''))
-    })
-
-    return () => {
-      unsubscribe()
-    }
-  }, [])
+  const { data: userLocations } = useUserLocations()
 
   const onRemoveLocation = useCallback(
     (locationId: string) => {

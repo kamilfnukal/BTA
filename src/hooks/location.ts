@@ -1,6 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { locationsCollection, userLocationsCollection, userLocationsDocumentById } from '../utils/firebase'
 import { getDocs, addDoc, deleteDoc, updateDoc } from '@firebase/firestore'
+import { useSession } from 'next-auth/react'
 
 const removeUserLocation = async ({ userEmail, locationId }: { userEmail: string; locationId: string }) => {
   const userLocationsByLocationId = (await getUserLocation(userEmail)).filter((x) => x.location.id === locationId)
@@ -19,6 +20,13 @@ const getUserLocation = async (userEmail: string | null | undefined) => {
   )
 }
 
+export const useUserLocations = () => {
+  const { data } = useSession()
+  return useQuery(['user-location', data?.user?.email], () => getUserLocation(data?.user?.email), {
+    // staleTime: 60 * 60
+  })
+}
+
 const addUserLocation = async ({
   userEmail,
   locationId,
@@ -32,7 +40,7 @@ const addUserLocation = async ({
   const userLocationsByLocationId = (await getUserLocation(userEmail)).filter((x) => x.location.id === locationId)
 
   if (userLocationsByLocationId.length === 0) {
-    var newDocRef = await addDoc(userLocationsCollection, {
+    const newDocRef = await addDoc(userLocationsCollection, {
       id: '',
       userEmail: userEmail,
       location: location,
