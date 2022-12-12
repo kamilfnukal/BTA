@@ -15,5 +15,5 @@ export const useBrnoBikeAccidents = () => {
 }
 
 export const filterAccidents = (accidents: BrnoBikeAccidentsResponse, query: string) => {
-  return accidents.filter(x => x.attributes.nazev.includes(query) || x.attributes.pricina.includes(query))
+  return accidents.filter(x => x.attributes.nazev.toLocaleLowerCase().includes(query.toLocaleLowerCase()) || x.attributes.pricina.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
 }
