@@ -101,18 +101,29 @@ type RecentlySearchedCardProps = RecentlySearchedTrips & {}
 
 const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ from, to }) => {
   return (
-    <div className="flex shadow-md border border-lighterblue w-1/2 h-36 space-x-6">
+    <div className="flex shadow-md border border-lighterblue w-1/2 h-44 space-x-6 py-4">
       {/* stepper on the left */}
       {/* TODO: gradient border */}
       <div className="ml-8 my-6 w-1 bg-gradient-to-b from-lighterblue to-blue-800 relative">
         <div className="h-6 w-6 rounded-full bg-lighterblue shadow absolute -top-3 -left-2.5"></div>
         <div className="h-6 w-6 rounded-full bg-blue-800 absolute -bottom-3 -left-2.5"></div>
       </div>
-      <div className="my-3 flex flex-col justify-between truncate">
-        <span className="text-lg truncate">{from.name}</span>
+      <div className="flex flex-col justify-between truncate">
+        <div className="flex flex-col">
+          <span className="text-lg truncate">{from.name}</span>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xs font-extralight">{from.lat}</span>
+            <span>&bull;</span>
+            <span className="text-xs font-extralight">{from.lng}</span>
+          </div>
+        </div>
         <div className="flex flex-col">
           <span className="text-lg">{to.name}</span>
-          <span className="text-xs">{from.lat}</span>
+          <div className="flex space-x-2 items-center">
+            <span className="text-xs font-extralight">{to.lat}</span>
+            <span>&bull;</span>
+            <span className="text-xs font-extralight">{to.lng}</span>
+          </div>
         </div>
       </div>
     </div>
