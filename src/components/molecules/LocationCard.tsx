@@ -15,7 +15,13 @@ export const LocationCard: React.FC<LocationCardProps> = ({ onRemove, pinned = f
   return (
     <div className="shadow-md border border-lighterblue py-3 px-10 rounded-lg flex justify-between relative">
       <div className="flex space-x-4">
-        <Image src={location.image === '' ? CITY : location.image} alt="" className="w-14 h-14 rounded-lg" />
+        <Image
+          src={location.image === '' ? CITY : location.image}
+          alt=""
+          width={56}
+          height={56}
+          className="w-14 h-14 rounded-lg"
+        />
         <div className="flex flex-col justify-between py-1">
           <h3 className="text-blue-800 font-semibold text-xl">{location.name}</h3>
           <div className="flex space-x-2 text-xs">
