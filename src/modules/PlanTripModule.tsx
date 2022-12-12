@@ -1,10 +1,13 @@
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
 import { Navigation } from 'react-feather'
 import { LabeledInput, MapyczMap } from '../components/molecules'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../const'
 import { usePlanTripFirebase } from '../hooks/planTrip'
 
 const PlanTripModule: React.FC = () => {
+  // TODO: read query parameters -- if they're there, pre-fill search fields and show route
+  const router = useRouter()
   const { data: session } = useSession()
   const { recentlySearchedTrips, createRecentlySearched, deleteRecentlySearchedTrip, updatePin } = usePlanTripFirebase(
     session?.user?.email ?? ''
