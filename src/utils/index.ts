@@ -1,3 +1,6 @@
+import { BrnoBikeAccidentsResponse } from '../types/api'
+import { Location, UserLocation } from './firebase'
+
 export const setListener = (isReady: () => any, onReady: () => void) => {
   const readyListener = (): NodeJS.Timeout | undefined => {
     if (isReady()) {
@@ -39,4 +42,22 @@ export const getWeeks = (year: number): Date[][] => {
   }
 
   return weeks
+}
+
+export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: UserLocation[]) => {
+  const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
+
+  for (const {
+    location: { coordinate, distance, id }
+  } of userLocations) {
+    result[id] = accidents.filter(
+      ({ geometry }) =>
+        coordinate.lat - distance <= geometry.y &&
+        geometry.y <= coordinate.lat + distance &&
+        coordinate.lng - distance <= geometry.x &&
+        geometry.x <= coordinate.lng + distance
+    )
+  }
+
+  return result
 }
