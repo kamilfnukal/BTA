@@ -13,3 +13,7 @@ export const useBrnoBikeAccidents = () => {
     staleTime: 60
   })
 }
+
+export const filterAccidents = (accidents: BrnoBikeAccidentsResponse, query: string) => {
+  return accidents.filter(x => x.attributes.nazev.includes(query) || x.attributes.pricina.includes(query))
+}
