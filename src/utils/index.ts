@@ -45,17 +45,17 @@ export const getWeeks = (year: number): Date[][] => {
 }
 
 export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: Location[]) => {
-  let result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {};
-  for (var l of userLocations){
-    var accidentsInLocation = [];
-    for (var a of accidents){
-        if(l.coordinate.lat - l.distance <= a.geometry.y  && a.geometry.y <= l.coordinate.lat + l.distance &&
-           l.coordinate.lng - l.distance <= a.geometry.x && a.geometry.x <= l.coordinate.lng + l.distance){
-          accidentsInLocation.push(a);
-        }
-    }
-    result[l.id] = accidentsInLocation
+  const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
+
+  for (const { coordinate, distance, id } of userLocations) {
+    result[id] = accidents.filter(
+      ({ geometry }) =>
+        coordinate.lat - distance <= geometry.y &&
+        geometry.y <= coordinate.lat + distance &&
+        coordinate.lng - distance <= geometry.x &&
+        geometry.x <= coordinate.lng + distance
+    )
   }
 
-  return result;
-};
+  return result
+}
