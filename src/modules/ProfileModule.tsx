@@ -7,7 +7,6 @@ import { LocationCard } from '../components/molecules'
 import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
 import { Location, UserLocation, userLocationsCollection } from '../utils/firebase'
-import { onSnapshot } from 'firebase/firestore'
 
 type AddLocationSelectProps = {
   locations: Location[]
@@ -17,6 +16,7 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
   const { data: session } = useSession()
   const [query, setQuery] = useState('')
   const { mutate: addUserLocation } = useAddUserLocation()
+  const { refetch } = useUserLocations()
 
   const onAddLocation = useCallback(
     (locationId: string) => {
@@ -25,7 +25,7 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
         { userEmail: session?.user?.email ?? '', locationId, note: 'School' },
         {
           onSuccess: () => {
-            console.log('Location successfully added')
+            refetch()
             setQuery('')
           }
         }
@@ -53,7 +53,7 @@ const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
                 onClick={() => onAddLocation(id)}
                 className="flex space-x-4 items-center px-4 py-1 hover:bg-lightpurple/50 hover:cursor-pointer group"
               >
-                <Image src={image} alt="" className="h-8 w-8 rounded-lg" />
+                <Image src={image === '' ? CITY : image} width={32} height={32} alt="" className="h-8 w-8 rounded-lg" />
                 <span className="text-lg text-left grow">{name}</span>
                 <div className="hidden shadow-lg items-center space-x-1 group-hover:flex bg-lighterpink px-2 py-1 rounded-lg text-xs">
                   <Plus size={14} />
@@ -72,6 +72,7 @@ const UserPreferredLocations = () => {
   const { data: session } = useSession()
   const { mutate: removeUserLocation } = useRemoveUserLocation()
   const { data: userLocations } = useUserLocations()
+  const { refetch } = useUserLocations()
 
   const onRemoveLocation = useCallback(
     (locationId: string) => {
@@ -79,7 +80,7 @@ const UserPreferredLocations = () => {
         { userEmail: session?.user?.email ?? '', locationId },
         {
           onSuccess: () => {
-            console.log('Location removed successfully')
+            refetch()
           }
         }
       )
