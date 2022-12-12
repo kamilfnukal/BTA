@@ -7,17 +7,17 @@
 }
 
 .smap-suggest {
-  @apply !w-full !mt-1 !rounded-lg !border-none !p-2 !shadow-lg
+  @apply !w-full !mt-1 !rounded-lg !border-none !p-2 !shadow-lg;
 }
 
 .smap-suggest li {
-  @apply !border-none !flex items-center rounded
+  @apply !border-none !flex items-center rounded;
 }
 
 .smap-suggest li:hover {
-  @apply !bg-lightpurple/40
+  @apply !bg-lightpurple/40;
 }
 
 .smap-suggest li .image {
-  @apply !flex !items-center !justify-center
+  @apply !flex !items-center !justify-center;
 }

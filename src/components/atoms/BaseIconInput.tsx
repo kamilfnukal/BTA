@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { DetailedHTMLProps, InputHTMLAttributes } from 'react'
 import { Icon } from 'react-feather'
 
-type BaseInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
+export type BaseInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {
   extraInputClasses?: string
   extraWrapperClasses?: string
   Icon: Icon
