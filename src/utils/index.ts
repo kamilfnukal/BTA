@@ -1,3 +1,6 @@
+import { BrnoBikeAccidentsResponse } from '../types/api'
+import { Location } from './firebase'
+
 export const setListener = (isReady: () => any, onReady: () => void) => {
   const readyListener = (): NodeJS.Timeout | undefined => {
     if (isReady()) {
@@ -40,3 +43,19 @@ export const getWeeks = (year: number): Date[][] => {
 
   return weeks
 }
+
+export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: Location[]) => {
+  let result = new Map();
+  for (var l of userLocations){
+    var accidentsInLocation = [];
+    for (var a of accidents){
+        if(l.coordinate.lat - l.distance <= a.geometry.y  && a.geometry.y <= l.coordinate.lat + l.distance &&
+          l.coordinate.lng - l.distance <= a.geometry.x && a.geometry.x <= l.coordinate.lng + l.distance){
+          accidentsInLocation.push(a);
+        }
+    }
+    result.set(location, accidentsInLocation);
+  }
+
+  return result;
+};
