@@ -2,13 +2,12 @@ import CITY from '../../public/city4.jpeg'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useAddUserLocation, useRemoveUserLocation, useUserLocations } from '../hooks/location'
-import { useCallback, useEffect, useState } from 'react'
-import { LocationCard } from '../components/molecules'
-import { ExternalLink, Globe, Plus, Search } from 'react-feather'
+import { useCallback, useState } from 'react'
+import { LocationCard, RecentlySearchedCard } from '../components/molecules'
+import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
-import { Location, RecentlySearchedTrips, UserLocation, userLocationsCollection } from '../utils/firebase'
+import { Location } from '../utils/firebase'
 import { usePlanTripFirebase } from '../hooks/planTrip'
-import { Coord } from '../types'
 
 type AddLocationSelectProps = {
   locations: Location[]
@@ -98,55 +97,12 @@ const UserPreferredLocations = () => {
   )
 }
 
-const CoordsLine: React.FC<{ coord: Coord }> = ({ coord: { lat, lng } }) => {
-  return (
-    <div className="flex space-x-2 items-center font-light text-black/50">
-      <Globe size={14} />
-      <span className="text-xs">{lat}</span>
-      <span>&bull;</span>
-      <span className="text-xs">{lng}</span>
-    </div>
-  )
-}
-
-type RecentlySearchedCardProps = RecentlySearchedTrips & {}
-
-const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ from, to }) => {
-  return (
-    <div className="flex shadow-md border border-lighterblue w-1/2 h-44 space-x-6 py-4 group">
-      <div className="ml-8 my-6 w-1 bg-gradient-to-b from-lighterblue to-blue-800 relative">
-        <div className="h-6 w-6 rounded-full bg-lighterblue shadow absolute -top-3 -left-2.5"></div>
-        <div className="h-6 w-6 rounded-full bg-blue-800 absolute -bottom-3 -left-2.5"></div>
-      </div>
-      <div className="flex flex-col justify-between truncate">
-        <div className="flex flex-col">
-          <span className="text-lg truncate">{from.name}</span>
-          <CoordsLine coord={from} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-lg">{to.name}</span>
-          <CoordsLine coord={to} />
-        </div>
-      </div>
-
-      {/* TODO change default to hidden */}
-      {/* TODO: add the same hvoer effect as for pin in LocationCard */}
-      {/* TODO: add redirect to /plan-trip-page and pass correct query parameters to URL */}
-      <button className="grid group-hover:grid place-items-center mt-auto h-10 w-10 rounded-full z-10 shadow-md bg-lighterpink">
-        <ExternalLink size={20} />
-      </button>
-    </div>
-  )
-}
-
 const RecentlySearchedLocations = () => {
   const { data: session } = useSession()
 
   const { recentlySearchedTrips, createRecentlySearched, deleteRecentlySearchedTrip, updatePin } = usePlanTripFirebase(
     session?.user?.email ?? ''
   )
-
-  console.log(recentlySearchedTrips)
 
   return (
     <div className="flex flex-col">
