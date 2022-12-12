@@ -45,7 +45,7 @@ export const getWeeks = (year: number): Date[][] => {
 }
 
 export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: Location[]) => {
-  let result = new Map<Location, BrnoBikeAccidentsResponse>();
+  let result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {};
   for (var l of userLocations){
     var accidentsInLocation = [];
     for (var a of accidents){
@@ -54,7 +54,7 @@ export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsRespon
           accidentsInLocation.push(a);
         }
     }
-    result.set(l, accidentsInLocation);
+    result[l.id] = accidentsInLocation
   }
 
   return result;
