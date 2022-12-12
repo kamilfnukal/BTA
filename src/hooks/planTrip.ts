@@ -47,8 +47,8 @@ const deleteRecentlySearchedTrip = async (
 
 const createRecentlySearched = async (
   recentlySearchedTrips: RecentlySearchedTrips[],
-  from: Coord,
-  to: Coord,
+  from: Coord & { name: string },
+  to: Coord & { name: string },
   userEmail: string
 ) => {
   const recentlySearchedByFromAndTo = recentlySearchedTrips.filter(

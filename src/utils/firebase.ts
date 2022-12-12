@@ -41,8 +41,8 @@ export const userLocationsDocumentById = (id: string) => doc(db, 'userLocations'
 // RecentlySearchedTrips collection
 export type RecentlySearchedTrips = {
   id: string
-  from: Coord
-  to: Coord
+  from: Coord & { name: string }
+  to: Coord & { name: string }
   searchedOn: Date
   pinned: boolean
   userEmail: string

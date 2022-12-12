@@ -27,11 +27,13 @@ const PlanTripModule: React.FC = () => {
                 recentlySearchedTrips,
                 {
                   lat: 49.209,
-                  lng: 16.635
+                  lng: 16.635,
+                  name: 'Brno - Veveří'
                 },
                 {
                   lat: 49.209,
-                  lng: 16.635
+                  lng: 16.635,
+                  name: 'Brno - Ponava'
                 },
                 session?.user?.email ?? ''
               )

@@ -6,7 +6,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { LocationCard } from '../components/molecules'
 import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
-import { Location, UserLocation, userLocationsCollection } from '../utils/firebase'
+import { Location, RecentlySearchedTrips, UserLocation, userLocationsCollection } from '../utils/firebase'
+import { usePlanTripFirebase } from '../hooks/planTrip'
 
 type AddLocationSelectProps = {
   locations: Location[]
@@ -96,6 +97,37 @@ const UserPreferredLocations = () => {
   )
 }
 
+type RecentlySearchedCardProps = RecentlySearchedTrips & {}
+
+const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ from, to }) => {
+  return (
+    <div className="flex shadow-md border border-lighterblue w-1/2">
+      {/* stepper on the left */}
+      {/* TODO: gradient border */}
+      <div className="h-full py-10 ml-8 w-1 bg-gradient-to-b from-lighterblue to-blue-800 my-8 relative">
+        <div className="h-6 w-6 rounded-full bg-lighterblue shadow absolute -top-3 -left-2.5"></div>
+        <div className="h-6 w-6 rounded-full bg-blue-800 absolute -bottom-3 -left-2.5"></div>
+      </div>
+    </div>
+  )
+}
+
+const RecentlySearchedLocations = () => {
+  const { data: session } = useSession()
+
+  const { recentlySearchedTrips, createRecentlySearched, deleteRecentlySearchedTrip, updatePin } = usePlanTripFirebase(
+    session?.user?.email ?? ''
+  )
+
+  return (
+    <div className="flex flex-col">
+      {recentlySearchedTrips.map((recentlySearched) => (
+        <RecentlySearchedCard {...recentlySearched} />
+      ))}
+    </div>
+  )
+}
+
 const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLocations }) => {
   const { data: session } = useSession()
 
@@ -117,7 +149,7 @@ const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLoca
         </div>
 
         <div className="px-20 w-full">
-          <div className="flex w-full">
+          <div className="flex space-x-20 w-full">
             {/* Left part */}
             <div className="w-1/2">
               <h2 className="text-2xl font-semibold my-6">Your preferred locations</h2>
@@ -132,7 +164,8 @@ const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLoca
 
             {/* Right part */}
             <div className="w-1/2">
-              <div className="">right part</div>
+              <h2 className="text-2xl font-semibold my-6">Recently searched trips</h2>
+              <RecentlySearchedLocations />
             </div>
           </div>
         </div>
