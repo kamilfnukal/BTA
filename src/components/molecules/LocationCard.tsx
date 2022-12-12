@@ -33,7 +33,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({ onRemove, pinned = f
           </div>
         </div>
       </div>
-      <div className={clsx('flex flex-col', note ? 'justify-between' : 'justify-end')}>
+      <div className={clsx('flex flex-col items-end', note ? 'justify-between' : 'justify-end')}>
         {note && (
           <div className="flex justify-end">
             <div className="bg-lighterpink px-2 py-1 rounded-lg text-xs">{note}</div>
