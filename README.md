@@ -1,4 +1,5 @@
 # IMPORTANT
+
 - ‼️ Udělejte si checkout na `dev` a z `dev`u pak vždycky feature branch. PR dávejte z vaši feature branche do `dev`u ‼️
 
 # PV247 projekt
@@ -13,16 +14,17 @@ Přihlášený uživatel si může uložit předdefinované “oblíbené” lok
 
 Abychom nevyuživali firebase jen pro ukládání preferovaných lokací uživatelů, bude na stránce i formulář na “Report nehody”. Řekněme, že Brno nesbírá info o úplně všech nehodách a uživatelé mohou přidávat nehody, které se jim staly, manuálně skrz tento formulář. Tyto nehody budeme ukládat ve Firebase a budeme i zobrazovat na naši stránce v sekci “Moje nehody”
 
-
 API: https://data.brno.cz/search
 
 Firebase kolekce:
+
 - Uživatel - id, name, accidents
 - Lokace - id, name
 - UživatelovaLokace - userId, locationId
 - Accident - id, title, description, where, userId
 
 Screens:
+
 - Landing page
 - Home - by default info o vhodném dopravním prostředku na zítřejší den
 - Login page
@@ -32,7 +34,9 @@ Screens:
 - Reported by user - Got from Brno API
 
 ---
+
 Stack:
+
 - Next 13
 - NextAuth
 - Firestore

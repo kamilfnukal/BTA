@@ -9,7 +9,12 @@ import {
 
 const updatePin = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord, userEmail: string) => {
   var recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
-    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng && x.userEmail === userEmail
+    (x) =>
+      x.from.lat === from.lat &&
+      x.from.lng === from.lng &&
+      x.to.lat === to.lat &&
+      x.to.lng === to.lng &&
+      x.userEmail === userEmail
   )
 
   const idToBeUpdated = recentlySearchedByFromAndTo[0].id
@@ -21,23 +26,43 @@ const updatePin = async (recentlySearchedTrips: RecentlySearchedTrips[], from: C
   })
 }
 
-const deleteRecentlySearchedTrip = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord, userEmail: string) => {
+const deleteRecentlySearchedTrip = async (
+  recentlySearchedTrips: RecentlySearchedTrips[],
+  from: Coord,
+  to: Coord,
+  userEmail: string
+) => {
   const recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
-    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng && x.userEmail === userEmail
+    (x) =>
+      x.from.lat === from.lat &&
+      x.from.lng === from.lng &&
+      x.to.lat === to.lat &&
+      x.to.lng === to.lng &&
+      x.userEmail === userEmail
   )
 
   const idToBeDeleted = recentlySearchedByFromAndTo[0].id
   await deleteDoc(recentlySearchedTripsDocumentById(idToBeDeleted))
 }
 
-const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord, userEmail: string) => {
+const createRecentlySearched = async (
+  recentlySearchedTrips: RecentlySearchedTrips[],
+  from: Coord,
+  to: Coord,
+  userEmail: string
+) => {
   const recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
-    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng && x.userEmail === userEmail
+    (x) =>
+      x.from.lat === from.lat &&
+      x.from.lng === from.lng &&
+      x.to.lat === to.lat &&
+      x.to.lng === to.lng &&
+      x.userEmail === userEmail
   )
 
   if (recentlySearchedByFromAndTo.length === 0) {
     const newDocRef = await addDoc(recentlySearchedTripsCollection, {
-      id: "",
+      id: '',
       from: from,
       to: to,
       searchedOn: new Date(),
@@ -45,7 +70,7 @@ const createRecentlySearched = async (recentlySearchedTrips: RecentlySearchedTri
       userEmail: userEmail
     })
 
-    await updateDoc(newDocRef, {id: newDocRef.id})
+    await updateDoc(newDocRef, { id: newDocRef.id })
   } else {
     const idToBeUpdated = recentlySearchedByFromAndTo[0].id
 
@@ -61,7 +86,7 @@ export const usePlanTripFirebase = (userEmail: string) => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(recentlySearchedTripsCollection, (snapshot) => {
-      setrecentlySearchedTrips(snapshot.docs.map((doc) => doc.data()).filter(x => x.userEmail === userEmail))
+      setrecentlySearchedTrips(snapshot.docs.map((doc) => doc.data()).filter((x) => x.userEmail === userEmail))
     })
 
     return () => {

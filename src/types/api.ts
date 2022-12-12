@@ -12,4 +12,3 @@ export type WeatherPrecipitationResponse = ({
 })[]
 
 export type WeatherTemperatureResponse = WeatherPrecipitationResponse
-
