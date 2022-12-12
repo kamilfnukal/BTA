@@ -1,5 +1,5 @@
 import { BrnoBikeAccidentsResponse } from '../types/api'
-import { Location } from './firebase'
+import { Location, UserLocation } from './firebase'
 
 export const setListener = (isReady: () => any, onReady: () => void) => {
   const readyListener = (): NodeJS.Timeout | undefined => {
@@ -44,10 +44,12 @@ export const getWeeks = (year: number): Date[][] => {
   return weeks
 }
 
-export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: Location[]) => {
+export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: UserLocation[]) => {
   const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
 
-  for (const { coordinate, distance, id } of userLocations) {
+  for (const {
+    location: { coordinate, distance, id }
+  } of userLocations) {
     result[id] = accidents.filter(
       ({ geometry }) =>
         coordinate.lat - distance <= geometry.y &&
