@@ -7,7 +7,7 @@ import { LocationCard, RecentlySearchedCard } from '../components/molecules'
 import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
 import { Location } from '../utils/firebase'
-import { usePlanTripFirebase } from '../hooks/planTrip'
+import { useRecentlySearched } from '../hooks/planTrip'
 
 type AddLocationSelectProps = {
   locations: Location[]
@@ -98,15 +98,11 @@ const UserPreferredLocations = () => {
 }
 
 const RecentlySearchedLocations = () => {
-  const { data: session } = useSession()
-
-  const { recentlySearchedTrips, createRecentlySearched, deleteRecentlySearchedTrip, updatePin } = usePlanTripFirebase(
-    session?.user?.email ?? ''
-  )
+  const { data: recentlySearchedTrips } = useRecentlySearched()
 
   return (
     <div className="flex flex-col">
-      {recentlySearchedTrips.map((recentlySearched) => (
+      {(recentlySearchedTrips ?? []).map((recentlySearched) => (
         <RecentlySearchedCard {...recentlySearched} />
       ))}
     </div>
