@@ -3,13 +3,14 @@ import { useRouter } from 'next/router'
 import { Navigation } from 'react-feather'
 import { LabeledInput, MapyczMap } from '../components/molecules'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../const'
-import { useCreateRecentlySearched } from '../hooks/planTrip'
+import { useCreateRecentlySearched, useRecentlySearched } from '../hooks/planTrip'
 
 const PlanTripModule: React.FC = () => {
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
   const { data: session } = useSession()
   const { mutate: createRecentlySearched } = useCreateRecentlySearched()
+  const { refetch } = useRecentlySearched()
 
   const onSearch = () => {
     createRecentlySearched(
@@ -29,6 +30,7 @@ const PlanTripModule: React.FC = () => {
       {
         onSuccess: () => {
           console.log('Sucessfully submitted recentlySearched')
+          refetch()
         }
       }
     )
