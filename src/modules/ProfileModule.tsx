@@ -99,7 +99,6 @@ const UserPreferredLocations = () => {
 
 const RecentlySearchedLocations = () => {
   const { data: recentlySearchedTrips } = useRecentlySearched()
-  console.log(recentlySearchedTrips)
 
   return (
     <div className="flex flex-col">
