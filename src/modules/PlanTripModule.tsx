@@ -4,8 +4,9 @@ import { Navigation } from 'react-feather'
 import { LabeledInput, MapyczMap } from '../components/molecules'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../const'
 import { useCreateRecentlySearched, useRecentlySearched } from '../hooks/planTrip'
+import { PlanTripPageProps } from '../types'
 
-const PlanTripModule: React.FC = () => {
+const PlanTripModule: React.FC<PlanTripPageProps> = (props) => {
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
   const { data: session } = useSession()

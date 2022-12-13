@@ -44,12 +44,10 @@ export const getWeeks = (year: number): Date[][] => {
   return weeks
 }
 
-export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: UserLocation[]) => {
+export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, locations: Location[]) => {
   const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
 
-  for (const {
-    location: { coordinate, distance, id }
-  } of userLocations) {
+  for (const { distance, coordinate, id } of locations) {
     result[id] = accidents.filter(
       ({ geometry }) =>
         coordinate.lat - distance <= geometry.y &&

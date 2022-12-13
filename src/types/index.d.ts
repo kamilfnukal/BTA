@@ -36,3 +36,9 @@ export type HomePageProps = {
   today: HomeModuleDayProps
   tomorrow: HomeModuleDayProps
 }
+
+export type PlanTripPageProps = {
+  locationAccidents: {
+    [key in string]: BrnoBikeAccidentsResponse
+  }
+}
