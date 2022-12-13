@@ -19,7 +19,7 @@ const CoordsLine: React.FC<{ coord: Coord }> = ({ coord: { lat, lng } }) => {
 
 export const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ from, to }) => {
   return (
-    <div className="flex shadow-md border border-lighterblue h-44 space-x-6 py-4 group relative pr-4">
+    <div className="flex shadow-md border border-lighterblue h-44 space-x-6 py-4 group relative pr-4 rounded-lg">
       <FromToLine />
       <div className="flex flex-col justify-between truncate">
         {[from, to].map((coord) => (
