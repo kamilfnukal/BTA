@@ -56,6 +56,11 @@ export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, lo
         geometry.x <= coordinate.lng + distance
     )
   }
+  const assignedAccidentIds = ([] as BrnoBikeAccidentsResponse)
+    .concat(...Object.values(result))
+    .map(({ attributes: { id } }) => id)
+
+  result['other'] = accidents.filter(({ attributes: { id } }) => !assignedAccidentIds.includes(id))
 
   return result
 }
