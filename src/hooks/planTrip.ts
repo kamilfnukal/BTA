@@ -1,21 +1,23 @@
-import { deleteDoc, onSnapshot, addDoc, updateDoc } from 'firebase/firestore'
-import { useState, useEffect } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { deleteDoc, addDoc, updateDoc, getDocs } from 'firebase/firestore'
+import { useSession } from 'next-auth/react'
 import { Coord } from '../types'
-import {
-  RecentlySearchedTrips,
-  recentlySearchedTripsDocumentById,
-  recentlySearchedTripsCollection
-} from '../utils/firebase'
+import { recentlySearchedTripsDocumentById, recentlySearchedTripsCollection } from '../utils/firebase'
 
-const updatePin = async (recentlySearchedTrips: RecentlySearchedTrips[], from: Coord, to: Coord, userEmail: string) => {
-  var recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
-    (x) =>
-      x.from.lat === from.lat &&
-      x.from.lng === from.lng &&
-      x.to.lat === to.lat &&
-      x.to.lng === to.lng &&
-      x.userEmail === userEmail
+type RecentlySearchedMutationArgs = {
+  from: Coord & { name: string }
+  to: Coord & { name: string }
+  userEmail: string
+}
+
+const getRecentlySearchedTripsByFromTo = async ({ from, to, userEmail }: RecentlySearchedMutationArgs) => {
+  return (await getRecentlySearchedTrips(userEmail)).filter(
+    (x) => x.from.lat === from.lat && x.from.lng === from.lng && x.to.lat === to.lat && x.to.lng === to.lng
   )
+}
+
+const updatePin = async (args: RecentlySearchedMutationArgs) => {
+  const recentlySearchedByFromAndTo = await getRecentlySearchedTripsByFromTo(args)
 
   const idToBeUpdated = recentlySearchedByFromAndTo[0].id
   const pinned = recentlySearchedByFromAndTo[0].pinned
@@ -26,39 +28,24 @@ const updatePin = async (recentlySearchedTrips: RecentlySearchedTrips[], from: C
   })
 }
 
-const deleteRecentlySearchedTrip = async (
-  recentlySearchedTrips: RecentlySearchedTrips[],
-  from: Coord,
-  to: Coord,
-  userEmail: string
-) => {
-  const recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
-    (x) =>
-      x.from.lat === from.lat &&
-      x.from.lng === from.lng &&
-      x.to.lat === to.lat &&
-      x.to.lng === to.lng &&
-      x.userEmail === userEmail
-  )
+export const useUpdateRecentlySearchedPinned = () => {
+  return useMutation(updatePin)
+}
+
+const deleteRecentlySearchedTrip = async (args: RecentlySearchedMutationArgs) => {
+  const recentlySearchedByFromAndTo = await getRecentlySearchedTripsByFromTo(args)
 
   const idToBeDeleted = recentlySearchedByFromAndTo[0].id
   await deleteDoc(recentlySearchedTripsDocumentById(idToBeDeleted))
 }
 
-const createRecentlySearched = async (
-  recentlySearchedTrips: RecentlySearchedTrips[],
-  from: Coord & { name: string },
-  to: Coord & { name: string },
-  userEmail: string
-) => {
-  const recentlySearchedByFromAndTo = recentlySearchedTrips.filter(
-    (x) =>
-      x.from.lat === from.lat &&
-      x.from.lng === from.lng &&
-      x.to.lat === to.lat &&
-      x.to.lng === to.lng &&
-      x.userEmail === userEmail
-  )
+export const useDeleteRecentlySearched = () => {
+  return useMutation(deleteRecentlySearchedTrip)
+}
+
+const createRecentlySearched = async (args: RecentlySearchedMutationArgs) => {
+  const recentlySearchedByFromAndTo = await getRecentlySearchedTripsByFromTo(args)
+  const { from, to, userEmail } = args
 
   if (recentlySearchedByFromAndTo.length === 0) {
     const newDocRef = await addDoc(recentlySearchedTripsCollection, {
@@ -81,25 +68,21 @@ const createRecentlySearched = async (
   }
 }
 
-export const usePlanTripFirebase = (userEmail: string) => {
-  const [recentlySearchedTrips, setrecentlySearchedTrips] = useState<RecentlySearchedTrips[]>([])
+export const useCreateRecentlySearched = () => {
+  return useMutation(createRecentlySearched)
+}
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(recentlySearchedTripsCollection, (snapshot) => {
-      setrecentlySearchedTrips(snapshot.docs.map((doc) => doc.data()).filter((x) => x.userEmail === userEmail))
-    })
+const getRecentlySearchedTrips = async (userEmail: string) => {
+  return (await getDocs(recentlySearchedTripsCollection).then((data) => data.docs.map((x) => x.data()))).filter(
+    (x) => x.userEmail === userEmail
+  )
+}
 
-    return () => {
-      unsubscribe()
-    }
-  }, [])
+export const useRecentlySearched = () => {
+  const { data: session } = useSession()
 
-  console.log(recentlySearchedTrips.length)
-
-  return {
-    recentlySearchedTrips,
-    createRecentlySearched,
-    deleteRecentlySearchedTrip,
-    updatePin
-  }
+  return useQuery(['recentlySearchedTrips'], () => getRecentlySearchedTrips(session?.user?.email ?? ''), {
+    staleTime: 60 * 60,
+    enabled: !!session
+  })
 }
