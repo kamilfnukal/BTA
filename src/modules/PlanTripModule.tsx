@@ -43,7 +43,7 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLoc
     return ([] as typeof locationAccidents[0])
       .concat(...Object.values(locationAccidents))
       .find(({ id }) => id.toString() === selectedAccidentId)!
-  }, [])
+  }, [selectedAccidentId])
 
   return (
     <div className="flex -mt-10 3xl:container 3xl:mx-auto w-full grow">
