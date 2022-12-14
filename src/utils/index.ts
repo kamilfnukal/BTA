@@ -45,11 +45,11 @@ export const getWeeks = (year: number): Date[][] => {
 }
 
 export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, locations: Location[]) => {
-  const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
+  const result: {
+    [key in Location['id']]: (BrnoBikeAccidentsResponse[0]['attributes'] & { lat: number; lng: number })[]
+  } = {}
 
-  for (const accident of accidents) {
-    const { geometry } = accident
-
+  for (const { geometry, attributes } of accidents) {
     for (const { coordinate, distance, id } of locations) {
       if (
         coordinate.lat - distance <= geometry.y &&
@@ -58,29 +58,19 @@ export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, lo
         geometry.x <= coordinate.lng + distance
       ) {
         result[id] = result[id] || []
-        result[id].push(accident)
+        result[id].push({ ...attributes, lat: geometry.y, lng: geometry.x })
         break
       }
     }
   }
 
-  // for (const { distance, coordinate, id } of locations) {
-  //   result[id] = accidents
-  //     .filter(
-  //       ({ geometry }) =>
-  //         coordinate.lat - distance <= geometry.y &&
-  //         geometry.y <= coordinate.lat + distance &&
-  //         coordinate.lng - distance <= geometry.x &&
-  //         geometry.x <= coordinate.lng + distance
-  //     )
-  //     .map((acc) => acc)
-  //   // TODO: map only fields needed for plan trip page to reduce total amount of data (MB)
-  // }
-  const assignedAccidentIds = ([] as BrnoBikeAccidentsResponse)
+  const assignedAccidentIds = ([] as BrnoBikeAccidentsResponse[0]['attributes'][])
     .concat(...Object.values(result))
-    .map(({ attributes: { id } }) => id)
+    .map(({ id }) => id)
 
-  result['other'] = accidents.filter(({ attributes: { id } }) => !assignedAccidentIds.includes(id))
+  result['other'] = accidents
+    .filter(({ attributes: { id } }) => !assignedAccidentIds.includes(id))
+    .map(({ attributes, geometry }) => ({ ...attributes, lat: geometry.y, lng: geometry.x }))
 
   return result
 }

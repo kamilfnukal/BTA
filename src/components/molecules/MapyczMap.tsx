@@ -34,9 +34,9 @@ const useSubmitRecentlySearched = (from?: CoordWithName, to?: CoordWithName) => 
   }, [from, to])
 }
 
-type MapyczMapProps = PlanTripPageProps & {}
+type MapyczMapProps = { locationAccidents: PlanTripPageProps['locationAccidents'] }
 
-const MapyczMap: React.FC<MapyczMapProps> = ({ allLocations, locationAccidents }) => {
+const MapyczMap: React.FC<MapyczMapProps> = ({ locationAccidents }) => {
   const [from, setFrom] = useState<CoordWithName | undefined>(undefined)
   const [to, setTo] = useState<CoordWithName | undefined>(undefined)
 
@@ -53,6 +53,10 @@ const MapyczMap: React.FC<MapyczMapProps> = ({ allLocations, locationAccidents }
       onClick: ({ data: { latitude, longitude, phrase } }) => setTo({ lat: latitude, lng: longitude, name: phrase })
     }
   ])
+
+  const coords = ([] as typeof locationAccidents[0])
+    .concat(...Object.values(locationAccidents))
+    .map(({ lat, lng }) => ({ lat, lng }))
 
   return (
     <Map
@@ -71,11 +75,7 @@ const MapyczMap: React.FC<MapyczMapProps> = ({ allLocations, locationAccidents }
 
       <MapMarkers
         // TODO: replace with accident markers
-        coords={[
-          { lat: 49.209, lng: 16.635 },
-          { lat: 49.209, lng: 16.835 },
-          { lat: 49.209, lng: 16.735 }
-        ]}
+        coords={coords}
       />
     </Map>
   )
