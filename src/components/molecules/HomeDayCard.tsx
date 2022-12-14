@@ -9,7 +9,7 @@ import { AccidentDetailModal } from '../organisms'
 
 import BIKE from '../../../public/home-images/bicycle.png'
 import BUS from '../../../public/home-images/bus.png'
-import CAR from '../../../public/home-images/car.jpeg'
+import CAR from '../../../public/home-images/car.png'
 
 type CardProps = HomeModuleDayProps & {
   title?: string
