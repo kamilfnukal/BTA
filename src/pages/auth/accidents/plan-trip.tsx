@@ -16,7 +16,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      locationAccidents: getAccidentsInLocations(accidents, locations)
+      locationAccidents: getAccidentsInLocations(accidents, locations),
+      allLocations: locations
     }
   }
 }

@@ -41,4 +41,5 @@ export type PlanTripPageProps = {
   locationAccidents: {
     [key in string]: BrnoBikeAccidentsResponse
   }
+  allLocations: Location[]
 }

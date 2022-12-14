@@ -68,7 +68,7 @@ const MapToolbar: React.FC<MapToolbarProps> = () => {
   )
 }
 
-const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents }) => {
+const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLocations }) => {
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
 
@@ -96,7 +96,7 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents }) => {
           return (
             <Form className="grow relative">
               <MapToolbar />
-              <MapyczMap />
+              <MapyczMap locationAccidents={locationAccidents} allLocations={allLocations} />
             </Form>
           )
         }}

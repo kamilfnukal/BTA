@@ -47,18 +47,35 @@ export const getWeeks = (year: number): Date[][] => {
 export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, locations: Location[]) => {
   const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
 
-  for (const { distance, coordinate, id } of locations) {
-    result[id] = accidents
-      .filter(
-        ({ geometry }) =>
-          coordinate.lat - distance <= geometry.y &&
-          geometry.y <= coordinate.lat + distance &&
-          coordinate.lng - distance <= geometry.x &&
-          geometry.x <= coordinate.lng + distance
-      )
-      .map((acc) => acc)
-    // TODO: map only fields needed for plan trip page to reduce total amount of data (MB)
+  for (const accident of accidents) {
+    const { geometry } = accident
+
+    for (const { coordinate, distance, id } of locations) {
+      if (
+        coordinate.lat - distance <= geometry.y &&
+        geometry.y <= coordinate.lat + distance &&
+        coordinate.lng - distance <= geometry.x &&
+        geometry.x <= coordinate.lng + distance
+      ) {
+        result[id] = result[id] || []
+        result[id].push(accident)
+        break
+      }
+    }
   }
+
+  // for (const { distance, coordinate, id } of locations) {
+  //   result[id] = accidents
+  //     .filter(
+  //       ({ geometry }) =>
+  //         coordinate.lat - distance <= geometry.y &&
+  //         geometry.y <= coordinate.lat + distance &&
+  //         coordinate.lng - distance <= geometry.x &&
+  //         geometry.x <= coordinate.lng + distance
+  //     )
+  //     .map((acc) => acc)
+  //   // TODO: map only fields needed for plan trip page to reduce total amount of data (MB)
+  // }
   const assignedAccidentIds = ([] as BrnoBikeAccidentsResponse)
     .concat(...Object.values(result))
     .map(({ attributes: { id } }) => id)

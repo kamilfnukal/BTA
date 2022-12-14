@@ -4,7 +4,7 @@ import { Map, MouseControl, SyncControl, ZoomControl } from 'react-mapycz'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../../const'
 import { useMapLoaderScript, useSetupSuggestListeners } from '../../hooks/mapycz'
 import { useCreateRecentlySearched, useRecentlySearched } from '../../hooks/planTrip'
-import { Coord } from '../../types'
+import { Coord, PlanTripPageProps } from '../../types'
 import { MapDynamicPath, MapMarkers } from '../atoms'
 
 type CoordWithName = Coord & { name: string }
@@ -34,9 +34,9 @@ const useSubmitRecentlySearched = (from?: CoordWithName, to?: CoordWithName) => 
   }, [from, to])
 }
 
-type MapyczMapProps = {}
+type MapyczMapProps = PlanTripPageProps & {}
 
-const MapyczMap: React.FC<MapyczMapProps> = () => {
+const MapyczMap: React.FC<MapyczMapProps> = ({ allLocations, locationAccidents }) => {
   const [from, setFrom] = useState<CoordWithName | undefined>(undefined)
   const [to, setTo] = useState<CoordWithName | undefined>(undefined)
 
