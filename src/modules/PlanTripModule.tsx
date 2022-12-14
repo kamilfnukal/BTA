@@ -1,40 +1,61 @@
-import { useSession } from 'next-auth/react'
+import { Form, Formik, useFormikContext } from 'formik'
 import { useRouter } from 'next/router'
 import { Navigation } from 'react-feather'
+import { BaseSelect } from '../components/atoms'
 import { LabeledInput, MapyczMap } from '../components/molecules'
-import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../const'
-import { useCreateRecentlySearched, useRecentlySearched } from '../hooks/planTrip'
+import { END_AT_INPUT_ID, START_FROM_INPUT_ID, YEARS, YEAR_OFFSET } from '../const'
+import { PlanTripPageProps } from '../types'
+import { Location } from '../utils/firebase'
 
-const PlanTripModule: React.FC = () => {
+const INITIAL_VALUES = {
+  location: 'ALL',
+  year: new Date().getFullYear() - YEAR_OFFSET
+}
+
+type MapToolbarProps = {
+  allLocations: Location[]
+}
+
+const MapToolbar: React.FC<MapToolbarProps> = ({ allLocations }) => {
+  const { values } = useFormikContext<typeof INITIAL_VALUES>()
+
+  return (
+    <div className="absolute z-10 top-3 left-6 bg-lightblue p-4 rounded-lg shadow-2xl border border-lighterblue flex space-x-4">
+      <div className="w-5/12">
+        <BaseSelect fieldName="year" options={YEARS.map((y) => ({ id: y, name: y.toString() }))} />
+      </div>
+
+      <div className="grow">
+        <BaseSelect
+          fieldName="location"
+          getValue={() => allLocations.find((l) => l.id === values.location)?.name ?? 'ALL'}
+          options={allLocations}
+          extraButtonClasses="w-72"
+        />
+      </div>
+    </div>
+  )
+}
+
+const getFilteredLocations = (
+  locationAccidents: PlanTripPageProps['locationAccidents'],
+  selectedLocationId?: string,
+  year?: number
+) => {
+  const result: PlanTripPageProps['locationAccidents'] = {}
+
+  for (const [location, accidents] of Object.entries(locationAccidents)) {
+    if (!selectedLocationId || selectedLocationId === location) {
+      result[location] = accidents.filter(({ rok }) => rok === year)
+    }
+  }
+
+  return result
+}
+
+const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLocations }) => {
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
-  const { data: session } = useSession()
-  const { mutate: createRecentlySearched } = useCreateRecentlySearched()
-  const { refetch } = useRecentlySearched()
-
-  const onSearch = () => {
-    createRecentlySearched(
-      {
-        from: {
-          lat: 49.209,
-          lng: 16.635,
-          name: 'Brno - Veveří'
-        },
-        to: {
-          lat: 49.209,
-          lng: 16.635,
-          name: 'Brno - Ponava'
-        },
-        userEmail: session?.user?.email ?? ''
-      },
-      {
-        onSuccess: () => {
-          console.log('Sucessfully submitted recentlySearched')
-          refetch()
-        }
-      }
-    )
-  }
 
   return (
     <div className="flex -mt-10 3xl:container 3xl:mx-auto w-full grow">
@@ -43,19 +64,24 @@ const PlanTripModule: React.FC = () => {
 
         <LabeledInput label="Start from" placeholder="Brno - Veveří" id={START_FROM_INPUT_ID} Icon={Navigation} />
         <LabeledInput label="End of trip" placeholder="Brno - Botanická" id={END_AT_INPUT_ID} Icon={Navigation} />
-
-        <div className="w-full flex justify-end mt-6">
-          {/* TODO: to be removed since path is displayed dynamically */}
-          {/* TODO: change coordinates to selected places */}
-          <button onClick={onSearch} className="rounded shadow-lg bg-lighterblue/50 px-4 py-2 hover:bg-lighterblue">
-            Show the best route!
-          </button>
-        </div>
       </div>
 
-      <div className="grow">
-        <MapyczMap />
-      </div>
+      <Formik initialValues={INITIAL_VALUES} onSubmit={(values) => undefined}>
+        {({ values }) => {
+          const filteredLocationAccidents = getFilteredLocations(
+            locationAccidents,
+            values.location === 'ALL' ? undefined : values.location,
+            values.year
+          )
+
+          return (
+            <Form className="grow relative">
+              <MapToolbar allLocations={allLocations} />
+              <MapyczMap locationAccidents={filteredLocationAccidents} />
+            </Form>
+          )
+        }}
+      </Formik>
     </div>
   )
 }

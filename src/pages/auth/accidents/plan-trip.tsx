@@ -1,10 +1,25 @@
-import { NextPage } from 'next'
+import { GetStaticProps, NextPage } from 'next'
+import { getBrnoBikeAccidents } from '../../../hooks/accidents'
+import { getAllLocations } from '../../../hooks/location'
 import { PlanTripModule, ProtectedModule } from '../../../modules'
+import { PlanTripPageProps } from '../../../types'
+import { getAccidentsInLocations } from '../../../utils'
 
-const ReportAccidentPage: NextPage = () => (
+const PlanTripPage: NextPage<PlanTripPageProps> = (props) => (
   <ProtectedModule>
-    <PlanTripModule />
+    <PlanTripModule {...props} />
   </ProtectedModule>
 )
 
-export default ReportAccidentPage
+export const getStaticProps: GetStaticProps = async () => {
+  const [accidents, locations] = await Promise.all([getBrnoBikeAccidents(), getAllLocations()])
+
+  return {
+    props: {
+      locationAccidents: getAccidentsInLocations(accidents, locations),
+      allLocations: locations
+    }
+  }
+}
+
+export default PlanTripPage

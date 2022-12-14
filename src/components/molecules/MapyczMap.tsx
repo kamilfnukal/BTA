@@ -1,21 +1,62 @@
-import React, { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import React, { useEffect, useState } from 'react'
 import { Map, MouseControl, SyncControl, ZoomControl } from 'react-mapycz'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../../const'
 import { useMapLoaderScript, useSetupSuggestListeners } from '../../hooks/mapycz'
-import { Coord } from '../../types'
+import { useCreateRecentlySearched, useRecentlySearched } from '../../hooks/planTrip'
+import { Coord, PlanTripPageProps } from '../../types'
 import { MapDynamicPath, MapMarkers } from '../atoms'
 
-type MapyczMapProps = {}
+type CoordWithName = Coord & { name: string }
 
-const MapyczMap: React.FC<MapyczMapProps> = () => {
-  const [from, setFrom] = useState<Coord | undefined>(undefined)
-  const [to, setTo] = useState<Coord | undefined>(undefined)
+const useSubmitRecentlySearched = (from?: CoordWithName, to?: CoordWithName) => {
+  const { data: session } = useSession()
+  const { mutate: createRecentlySearched } = useCreateRecentlySearched()
+  const { refetch } = useRecentlySearched()
+
+  useEffect(() => {
+    if (from && to) {
+      createRecentlySearched(
+        {
+          from,
+          to,
+          userEmail: session?.user?.email ?? ''
+        },
+        {
+          onSuccess: () => {
+            console.log('Sucessfully submitted recentlySearched')
+            // TODO: invalidate query instead of refetching
+            refetch()
+          }
+        }
+      )
+    }
+  }, [from, to])
+}
+
+type MapyczMapProps = { locationAccidents: PlanTripPageProps['locationAccidents'] }
+
+const MapyczMap: React.FC<MapyczMapProps> = ({ locationAccidents }) => {
+  const [from, setFrom] = useState<CoordWithName | undefined>(undefined)
+  const [to, setTo] = useState<CoordWithName | undefined>(undefined)
+
+  useSubmitRecentlySearched(from, to)
 
   useMapLoaderScript()
   useSetupSuggestListeners([
-    { id: START_FROM_INPUT_ID, onClick: ({ data }) => setFrom({ lat: data.latitude, lng: data.longitude }) },
-    { id: END_AT_INPUT_ID, onClick: ({ data }) => setTo({ lat: data.latitude, lng: data.longitude }) }
+    {
+      id: START_FROM_INPUT_ID,
+      onClick: ({ data: { latitude, longitude, phrase } }) => setFrom({ lat: latitude, lng: longitude, name: phrase })
+    },
+    {
+      id: END_AT_INPUT_ID,
+      onClick: ({ data: { latitude, longitude, phrase } }) => setTo({ lat: latitude, lng: longitude, name: phrase })
+    }
   ])
+
+  const coords = ([] as typeof locationAccidents[0])
+    .concat(...Object.values(locationAccidents))
+    .map(({ lat, lng }) => ({ lat, lng }))
 
   return (
     <Map
@@ -34,11 +75,7 @@ const MapyczMap: React.FC<MapyczMapProps> = () => {
 
       <MapMarkers
         // TODO: replace with accident markers
-        coords={[
-          { lat: 49.209, lng: 16.635 },
-          { lat: 49.209, lng: 16.835 },
-          { lat: 49.209, lng: 16.735 }
-        ]}
+        coords={coords}
       />
     </Map>
   )

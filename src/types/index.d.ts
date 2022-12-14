@@ -1,4 +1,5 @@
 import { Session } from 'next-auth'
+import { Location } from '../utils/firebase'
 import { BrnoBikeAccidentsResponse } from './api'
 
 declare global {
@@ -35,4 +36,11 @@ export type HomePageProps = {
   yesterday: HomeModuleDayProps
   today: HomeModuleDayProps
   tomorrow: HomeModuleDayProps
+}
+
+export type PlanTripPageProps = {
+  locationAccidents: {
+    [key in string]: (BrnoBikeAccidentsResponse[0]['attributes'] & { lat: number; lng: number })[]
+  }
+  allLocations: Location[]
 }

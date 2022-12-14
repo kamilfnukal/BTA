@@ -24,11 +24,13 @@ const MyMarker: React.FC<MyMarkerProps> = ({ markerLayer, lat, lng, id }) => {
   const markerLayerLoaded = useWaitForMarkerLayer()
 
   useEffect(() => {
-    if (markerLayerLoaded && markerLayer) {
+    // When changing coords of markers, the owner becomes undefined. We need to check for that.
+    const isMarkerLayerDefined = markerLayer && markerLayer._owner
+
+    if (markerLayerLoaded && isMarkerLayerDefined) {
       const coords = window.SMap.Coords.fromWGS84(lng, lat)
       const sMarker = new window.SMap.Marker(coords, id, undefined)
 
-      console.log(markerLayer)
       markerLayer.addMarker(sMarker)
 
       return () => {
@@ -59,7 +61,7 @@ const MapMarkers: React.FC<MapMarkersProps> = ({ coords }) => {
     return () => {
       map.removeLayer(l)
     }
-  }, [])
+  }, [coords])
 
   return (
     <>

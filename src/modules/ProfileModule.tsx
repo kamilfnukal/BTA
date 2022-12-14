@@ -90,7 +90,7 @@ const UserPreferredLocations = () => {
   )
 
   return (
-    <div className="mt-4 flex flex-col space-y-2">
+    <div className="mt-4 flex flex-col space-y-4">
       {userLocations &&
         userLocations.map((userLocation) => <LocationCard {...userLocation} onRemove={onRemoveLocation} />)}
     </div>
@@ -99,13 +99,30 @@ const UserPreferredLocations = () => {
 
 const RecentlySearchedLocations = () => {
   const { data: recentlySearchedTrips } = useRecentlySearched()
+  const [limit, setLimit] = useState<number | null>(4)
+
+  const onShowMore = useCallback(() => {
+    setLimit(null)
+  }, [])
 
   return (
-    <div className="flex flex-col">
-      {(recentlySearchedTrips ?? []).map((recentlySearched) => (
-        <RecentlySearchedCard {...recentlySearched} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        {(recentlySearchedTrips ? (limit ? recentlySearchedTrips.slice(0, limit) : recentlySearchedTrips) : []).map(
+          (recentlySearched) => (
+            <RecentlySearchedCard {...recentlySearched} />
+          )
+        )}
+      </div>
+      {recentlySearchedTrips && recentlySearchedTrips.length > 4 && limit && (
+        <button
+          onClick={onShowMore}
+          className="text-sm mt-3 py-1 border border-lighterblue w-full shadow-md rounded-lg hover:bg-lighterblue/50 hover:border-lighterblue"
+        >
+          Show more
+        </button>
+      )}
+    </>
   )
 }
 

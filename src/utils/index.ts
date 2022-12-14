@@ -44,20 +44,33 @@ export const getWeeks = (year: number): Date[][] => {
   return weeks
 }
 
-export const getAccidentsInCertainLocation = (accidents: BrnoBikeAccidentsResponse, userLocations: UserLocation[]) => {
-  const result: { [key in Location['id']]: BrnoBikeAccidentsResponse } = {}
+export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, locations: Location[]) => {
+  const result: {
+    [key in Location['id']]: (BrnoBikeAccidentsResponse[0]['attributes'] & { lat: number; lng: number })[]
+  } = {}
 
-  for (const {
-    location: { coordinate, distance, id }
-  } of userLocations) {
-    result[id] = accidents.filter(
-      ({ geometry }) =>
+  for (const { geometry, attributes } of accidents) {
+    for (const { coordinate, distance, id } of locations) {
+      if (
         coordinate.lat - distance <= geometry.y &&
         geometry.y <= coordinate.lat + distance &&
         coordinate.lng - distance <= geometry.x &&
         geometry.x <= coordinate.lng + distance
-    )
+      ) {
+        result[id] = result[id] || []
+        result[id].push({ ...attributes, lat: geometry.y, lng: geometry.x })
+        break
+      }
+    }
   }
+
+  const assignedAccidentIds = ([] as BrnoBikeAccidentsResponse[0]['attributes'][])
+    .concat(...Object.values(result))
+    .map(({ id }) => id)
+
+  result['other'] = accidents
+    .filter(({ attributes: { id } }) => !assignedAccidentIds.includes(id))
+    .map(({ attributes, geometry }) => ({ ...attributes, lat: geometry.y, lng: geometry.x }))
 
   return result
 }
