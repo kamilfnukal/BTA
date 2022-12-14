@@ -1,14 +1,27 @@
 import clsx from 'clsx'
+import Image from 'next/image'
 import { useState } from 'react'
-import { Smile, Sun, Umbrella } from 'react-feather'
+import { Sun, Umbrella } from 'react-feather'
 import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../../const/api'
 import { HomeModuleDayProps } from '../../types'
 import { Button } from '../atoms'
 import { AccidentDetailModal } from '../organisms'
 
+import BIKE from '../../../public/home-images/bicycle.png'
+import BUS from '../../../public/home-images/bus.png'
+import CAR from '../../../public/home-images/car.jpeg'
+
 type CardProps = HomeModuleDayProps & {
   title?: string
   accidents: typeof EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE[]
+}
+
+const getImage = (temperature: number | string, precipitaion: number | string, accidentsCount: number) => {
+  if (accidentsCount > 0) return CAR
+  if (temperature > 20) return BIKE
+  if (precipitaion > 0) return BUS
+
+  return BIKE
 }
 
 const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accidents }) => {
@@ -19,13 +32,20 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
 
   const hasAccidents = accidents.length !== 0
 
-  const acc = accidents[0]
+  const imageSrc = getImage(temperature, precipitation, accidents.length)
 
   return (
-    <div className="card card-compact bg-base-100 shadow-xl">
-      <figure>
-        <img src="https://placeimg.com/400/225/arch" alt="Shoes" />
-      </figure>
+    <div className="card card-compact bg-base-100 shadow-xl rounded-t-lg">
+      <div>
+        <Image
+          src={imageSrc}
+          alt="bike"
+          className={clsx(
+            'rounded-t-lg w-full object-bottom object-cover',
+            imageSrc !== BIKE && 'h-52 object-bottom object-cover'
+          )}
+        />
+      </div>
       <div className={clsx('card-body', !hasAccidents && '!pb-10')}>
         <div className={clsx('flex justify-around', smaller ? 'text-md' : 'text-xl')}>
           <div className="flex items-center space-x-4 mt-2 mb-4">
@@ -84,7 +104,7 @@ const HomeDayCard: React.FC<CardProps> = (props) => {
       {title ? (
         <div className="w-1/3 flex flex-col">
           <h1 className="text-2xl text-center pb-8 text-blue-800 grow grid place-items-center">{title}</h1>
-          <Card {...props} accidents={[EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE]} />
+          <Card {...props} accidents={props.accidents} />
         </div>
       ) : (
         <Card {...props} />
