@@ -17,16 +17,10 @@ export const BaseSelect = <T extends { id: string | number; name: string }, K ex
   getValue,
   extraButtonClasses = ''
 }: BaseSelectProps<T, K>) => {
-  const { values, setFieldValue, submitForm } = useFormikContext<K>()
+  const { values, setFieldValue } = useFormikContext<K>()
 
   return (
-    <Listbox
-      value={values[fieldName]}
-      onChange={(locationId) => {
-        setFieldValue(fieldName as string, locationId)
-        submitForm()
-      }}
-    >
+    <Listbox value={values[fieldName]} onChange={(locationId) => setFieldValue(fieldName as string, locationId)}>
       <div className="relative">
         <Listbox.Button
           className={clsx(

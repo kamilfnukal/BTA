@@ -56,7 +56,7 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLoc
         {selectedAccident && <AccidentDetail accident={selectedAccident} />}
       </div>
 
-      <Formik initialValues={INITIAL_VALUES} onSubmit={(values) => undefined}>
+      <Formik initialValues={INITIAL_VALUES} onSubmit={() => undefined}>
         {({ values }) => {
           // Preventing map re-render on marker click
           const filteredLocationAccidents = useMemo(
