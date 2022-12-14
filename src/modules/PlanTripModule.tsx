@@ -1,5 +1,6 @@
 import { Form, Formik, useFormikContext } from 'formik'
 import { useRouter } from 'next/router'
+import { useRef, useMemo, useState, useCallback } from 'react'
 import { Navigation } from 'react-feather'
 import { BaseSelect } from '../components/atoms'
 import { LabeledInput, MapyczMap } from '../components/molecules'
@@ -53,9 +54,55 @@ const getFilteredLocations = (
   return result
 }
 
+type AccidentDetailLineProps = {
+  title: string
+  value: string
+}
+
+const AccidentDetailLine: React.FC<AccidentDetailLineProps> = ({ title, value }) => {
+  return (
+    <div className="flex items-center space-x-4 justify-between">
+      <h3 className="text-lg text-black/50 whitespace-nowrap">{title}: </h3>
+      <div className="px-3 py-[2px] bg-lighterpink rounded">{value}</div>
+    </div>
+  )
+}
+
+type AccidentDetailProps = {
+  accident: PlanTripPageProps['locationAccidents'][0][0]
+}
+
+const AccidentDetail: React.FC<AccidentDetailProps> = ({ accident }) => {
+  const date = new Date(0)
+  date.setMilliseconds(accident.datum)
+
+  return (
+    <div className="shadow-md border border-lighterblue mt-8 p-4 rounded flex flex-col space-y-3 justify-center">
+      <div className="flex space-x-2 items-baseline mb-2 border-b border-b-blue-800/50 pb-2">
+        <h2 className="text-black/50">Detail nehody ze dne</h2>
+        <div className="text-xl">{date.toLocaleDateString()}</div>
+      </div>
+
+      <AccidentDetailLine title="Následky" value={accident.nasledek} />
+      <AccidentDetailLine title="Srážka" value={accident.srazka} />
+      <AccidentDetailLine title="Věková skupina" value={accident.vek_skupina} />
+      <AccidentDetailLine title="Zavinění" value={accident.zavineni} />
+      <AccidentDetailLine title="Viditelnost" value={accident.viditelnost} />
+      <AccidentDetailLine title="Alkohol" value={accident.alkohol} />
+      <AccidentDetailLine title="Stav řidiče" value={accident.stav_ridic} />
+    </div>
+  )
+}
+
 const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLocations }) => {
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
+
+  const [selectedAccidentId, setSelectedAccidentId] = useState<string | null>(null)
+
+  const onSelectAccidentId = useCallback((id: string) => {
+    setSelectedAccidentId(id)
+  }, [])
 
   return (
     <div className="flex -mt-10 3xl:container 3xl:mx-auto w-full grow">
@@ -64,20 +111,35 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLoc
 
         <LabeledInput label="Start from" placeholder="Brno - Veveří" id={START_FROM_INPUT_ID} Icon={Navigation} />
         <LabeledInput label="End of trip" placeholder="Brno - Botanická" id={END_AT_INPUT_ID} Icon={Navigation} />
+
+        {selectedAccidentId && (
+          <AccidentDetail
+            accident={
+              ([] as typeof locationAccidents[0])
+                .concat(...Object.values(locationAccidents))
+                .find(({ id }) => id.toString() === selectedAccidentId)!
+            }
+          />
+        )}
       </div>
 
       <Formik initialValues={INITIAL_VALUES} onSubmit={(values) => undefined}>
         {({ values }) => {
-          const filteredLocationAccidents = getFilteredLocations(
-            locationAccidents,
-            values.location === 'ALL' ? undefined : values.location,
-            values.year
+          // Preventing map re-render on marker click
+          const filteredLocationAccidents = useMemo(
+            () =>
+              getFilteredLocations(
+                locationAccidents,
+                values.location === 'ALL' ? undefined : values.location,
+                values.year
+              ),
+            [values]
           )
 
           return (
             <Form className="grow relative">
               <MapToolbar allLocations={allLocations} />
-              <MapyczMap locationAccidents={filteredLocationAccidents} />
+              <MapyczMap locationAccidents={filteredLocationAccidents} onMarkerClick={setSelectedAccidentId} />
             </Form>
           )
         }}
