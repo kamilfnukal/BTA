@@ -42,9 +42,9 @@ const MyMarker: React.FC<MyMarkerProps> = ({ markerLayer, lat, lng, id }) => {
   return null
 }
 
-type MapMarkersProps = { coords: Coord[] }
+type MapMarkersProps = { coords: (Coord & { id: number })[]; onMarkerClick: (id: string) => void }
 
-const MapMarkers: React.FC<MapMarkersProps> = ({ coords }) => {
+const MapMarkers: React.FC<MapMarkersProps> = ({ coords, onMarkerClick }) => {
   const map = useMap()
 
   const [layer, setLayer] = useState<any>(null)
@@ -58,15 +58,22 @@ const MapMarkers: React.FC<MapMarkersProps> = ({ coords }) => {
     l.enable()
     setLayer(l)
 
+    // Listener for marker clicks
+    map
+      .getSignals()
+      .addListener(this, 'marker-click', (e: { target: { getId: () => string } }) => onMarkerClick(e.target.getId()))
+
     return () => {
       map.removeLayer(l)
+      // TODO: remove listener
+      // map.getSignals().removeListener(this, 'marker-click')
     }
   }, [coords])
 
   return (
     <>
-      {coords.map(({ lat, lng }) => (
-        <MyMarker lat={lat} lng={lng} markerLayer={layer} id={`${lat}-${lng}`} />
+      {coords.map(({ lat, lng, id }) => (
+        <MyMarker lat={lat} lng={lng} markerLayer={layer} id={id.toString()} />
       ))}
     </>
   )

@@ -1,5 +1,5 @@
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { Map, MouseControl, SyncControl, ZoomControl } from 'react-mapycz'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID } from '../../const'
 import { useMapLoaderScript, useSetupSuggestListeners } from '../../hooks/mapycz'
@@ -34,9 +34,9 @@ const useSubmitRecentlySearched = (from?: CoordWithName, to?: CoordWithName) => 
   }, [from, to])
 }
 
-type MapyczMapProps = { locationAccidents: PlanTripPageProps['locationAccidents'] }
+type MapyczMapProps = { locationAccidents: PlanTripPageProps['locationAccidents']; onMarkerClick: (id: string) => void }
 
-const MapyczMap: React.FC<MapyczMapProps> = ({ locationAccidents }) => {
+const MapyczMap: React.FC<MapyczMapProps> = ({ locationAccidents, onMarkerClick }) => {
   const [from, setFrom] = useState<CoordWithName | undefined>(undefined)
   const [to, setTo] = useState<CoordWithName | undefined>(undefined)
 
@@ -56,7 +56,7 @@ const MapyczMap: React.FC<MapyczMapProps> = ({ locationAccidents }) => {
 
   const coords = ([] as typeof locationAccidents[0])
     .concat(...Object.values(locationAccidents))
-    .map(({ lat, lng }) => ({ lat, lng }))
+    .map(({ lat, lng, id }) => ({ lat, lng, id }))
 
   return (
     <Map
@@ -76,8 +76,12 @@ const MapyczMap: React.FC<MapyczMapProps> = ({ locationAccidents }) => {
       <MapMarkers
         // TODO: replace with accident markers
         coords={coords}
+        onMarkerClick={onMarkerClick}
       />
     </Map>
   )
 }
-export { MapyczMap }
+
+const MemoizedMapyczMap = memo(MapyczMap)
+
+export { MemoizedMapyczMap as MapyczMap }

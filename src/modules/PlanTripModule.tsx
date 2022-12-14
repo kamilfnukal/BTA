@@ -1,40 +1,14 @@
-import { Form, Formik, useFormikContext } from 'formik'
+import { Form, Formik } from 'formik'
 import { useRouter } from 'next/router'
+import { useMemo, useState, useCallback } from 'react'
 import { Navigation } from 'react-feather'
-import { BaseSelect } from '../components/atoms'
-import { LabeledInput, MapyczMap } from '../components/molecules'
-import { END_AT_INPUT_ID, START_FROM_INPUT_ID, YEARS, YEAR_OFFSET } from '../const'
+import { AccidentDetail, LabeledInput, MapToolbar, MapyczMap } from '../components/molecules'
+import { END_AT_INPUT_ID, START_FROM_INPUT_ID, YEAR_OFFSET } from '../const'
 import { PlanTripPageProps } from '../types'
-import { Location } from '../utils/firebase'
 
 const INITIAL_VALUES = {
   location: 'ALL',
   year: new Date().getFullYear() - YEAR_OFFSET
-}
-
-type MapToolbarProps = {
-  allLocations: Location[]
-}
-
-const MapToolbar: React.FC<MapToolbarProps> = ({ allLocations }) => {
-  const { values } = useFormikContext<typeof INITIAL_VALUES>()
-
-  return (
-    <div className="absolute z-10 top-3 left-6 bg-lightblue p-4 rounded-lg shadow-2xl border border-lighterblue flex space-x-4">
-      <div className="w-5/12">
-        <BaseSelect fieldName="year" options={YEARS.map((y) => ({ id: y, name: y.toString() }))} />
-      </div>
-
-      <div className="grow">
-        <BaseSelect
-          fieldName="location"
-          getValue={() => allLocations.find((l) => l.id === values.location)?.name ?? 'ALL'}
-          options={allLocations}
-          extraButtonClasses="w-72"
-        />
-      </div>
-    </div>
-  )
 }
 
 const getFilteredLocations = (
@@ -57,6 +31,20 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLoc
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
 
+  const [selectedAccidentId, setSelectedAccidentId] = useState<string | null>(null)
+
+  const onSelectAccidentId = useCallback((id: string) => {
+    setSelectedAccidentId(id)
+  }, [])
+
+  const selectedAccident = useMemo(() => {
+    if (!selectedAccidentId) return null
+
+    return ([] as typeof locationAccidents[0])
+      .concat(...Object.values(locationAccidents))
+      .find(({ id }) => id.toString() === selectedAccidentId)!
+  }, [])
+
   return (
     <div className="flex -mt-10 3xl:container 3xl:mx-auto w-full grow">
       <div className="w-5/12 flex flex-col px-10">
@@ -64,20 +52,27 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLoc
 
         <LabeledInput label="Start from" placeholder="Brno - Veveří" id={START_FROM_INPUT_ID} Icon={Navigation} />
         <LabeledInput label="End of trip" placeholder="Brno - Botanická" id={END_AT_INPUT_ID} Icon={Navigation} />
+
+        {selectedAccident && <AccidentDetail accident={selectedAccident} />}
       </div>
 
       <Formik initialValues={INITIAL_VALUES} onSubmit={(values) => undefined}>
         {({ values }) => {
-          const filteredLocationAccidents = getFilteredLocations(
-            locationAccidents,
-            values.location === 'ALL' ? undefined : values.location,
-            values.year
+          // Preventing map re-render on marker click
+          const filteredLocationAccidents = useMemo(
+            () =>
+              getFilteredLocations(
+                locationAccidents,
+                values.location === 'ALL' ? undefined : values.location,
+                values.year
+              ),
+            [values]
           )
 
           return (
             <Form className="grow relative">
               <MapToolbar allLocations={allLocations} />
-              <MapyczMap locationAccidents={filteredLocationAccidents} />
+              <MapyczMap locationAccidents={filteredLocationAccidents} onMarkerClick={setSelectedAccidentId} />
             </Form>
           )
         }}
