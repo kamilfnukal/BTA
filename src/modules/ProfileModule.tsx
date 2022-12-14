@@ -8,6 +8,7 @@ import { Plus, Search } from 'react-feather'
 import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
 import { Location } from '../utils/firebase'
 import { useRecentlySearched } from '../hooks/planTrip'
+import { RecentlySearchedSection } from '../components/organisms'
 
 type AddLocationSelectProps = {
   locations: Location[]
@@ -97,35 +98,6 @@ const UserPreferredLocations = () => {
   )
 }
 
-const RecentlySearchedLocations = () => {
-  const { data: recentlySearchedTrips } = useRecentlySearched()
-  const [limit, setLimit] = useState<number | null>(4)
-
-  const onShowMore = useCallback(() => {
-    setLimit(null)
-  }, [])
-
-  return (
-    <>
-      <div className="grid grid-cols-2 gap-4">
-        {(recentlySearchedTrips ? (limit ? recentlySearchedTrips.slice(0, limit) : recentlySearchedTrips) : []).map(
-          (recentlySearched) => (
-            <RecentlySearchedCard {...recentlySearched} />
-          )
-        )}
-      </div>
-      {recentlySearchedTrips && recentlySearchedTrips.length > 4 && limit && (
-        <button
-          onClick={onShowMore}
-          className="text-sm mt-3 py-1 border border-lighterblue w-full shadow-md rounded-lg hover:bg-lighterblue/50 hover:border-lighterblue"
-        >
-          Show more
-        </button>
-      )}
-    </>
-  )
-}
-
 const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLocations }) => {
   const { data: session } = useSession()
 
@@ -163,7 +135,7 @@ const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLoca
             {/* Right part */}
             <div className="w-1/2">
               <h2 className="text-2xl font-semibold my-6">Recently searched trips</h2>
-              <RecentlySearchedLocations />
+              <RecentlySearchedSection />
             </div>
           </div>
         </div>
