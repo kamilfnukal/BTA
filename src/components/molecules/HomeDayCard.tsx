@@ -1,8 +1,10 @@
 import clsx from 'clsx'
+import { useState } from 'react'
 import { Smile, Sun, Umbrella } from 'react-feather'
 import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../../const/api'
 import { HomeModuleDayProps } from '../../types'
 import { Button } from '../atoms'
+import { AccidentDetailModal } from '../organisms'
 
 type CardProps = HomeModuleDayProps & {
   title?: string
@@ -10,9 +12,14 @@ type CardProps = HomeModuleDayProps & {
 }
 
 const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accidents }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const closeModal = () => setIsOpen(false)
+
   const smaller = !!title
 
   const hasAccidents = accidents.length !== 0
+
+  const acc = accidents[0]
 
   return (
     <div className="card card-compact bg-base-100 shadow-xl">
@@ -50,13 +57,20 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
         )}
 
         {hasAccidents && (
-          <div className="card-actions justify-end mt-4 mb-2">
-            <Button
-              extraClasses="bg-lightpurple/60 text-black border-none hover:bg-lightpurple"
-              onClick={() => undefined}
-              label="See Accident details!"
+          <>
+            <div className="card-actions justify-end mt-4 mb-2">
+              <Button
+                extraClasses="bg-lightpurple/60 text-black border-none hover:bg-lightpurple"
+                onClick={() => setIsOpen(true)}
+                label="See Accident details!"
+              />
+            </div>
+            <AccidentDetailModal
+              accident={{ ...accidents[0].attributes, lat: accidents[0].geometry.x, lng: accidents[0].geometry.y }}
+              isOpen={isOpen}
+              closeModal={closeModal}
             />
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -70,7 +84,7 @@ const HomeDayCard: React.FC<CardProps> = (props) => {
       {title ? (
         <div className="w-1/3 flex flex-col">
           <h1 className="text-2xl text-center pb-8 text-blue-800 grow grid place-items-center">{title}</h1>
-          <Card {...props} />
+          <Card {...props} accidents={[EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE]} />
         </div>
       ) : (
         <Card {...props} />
