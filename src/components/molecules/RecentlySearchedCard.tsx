@@ -1,10 +1,11 @@
-import { ExternalLink, MapPin } from 'react-feather'
+import { Bookmark, Check, CheckCircle, ExternalLink, MapPin, X } from 'react-feather'
 import { Coord } from '../../types'
 import { RecentlySearchedTrips } from '../../utils/firebase'
 import { FromToLine } from '../atoms'
 
 type RecentlySearchedCardProps = RecentlySearchedTrips & {
   pinned?: boolean
+  onPin?: (from: Coord & { name: string }, to: Coord & { name: string }) => void
 }
 
 const CoordsLine: React.FC<{ coord: Coord }> = ({ coord: { lat, lng } }) => {
@@ -17,9 +18,9 @@ const CoordsLine: React.FC<{ coord: Coord }> = ({ coord: { lat, lng } }) => {
   )
 }
 
-export const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ from, to }) => {
+export const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ id, from, to, pinned, onPin }) => {
   return (
-    <div className="flex shadow-md border border-lighterblue h-44 space-x-6 py-4 group relative pr-4 rounded-lg">
+    <div className="flex shadow-md border border-lighterblue h-44 space-x-6 py-4 group/out relative pr-4 rounded-lg">
       <FromToLine />
       <div className="flex flex-col justify-between truncate">
         {[from, to].map((coord) => (
@@ -32,11 +33,37 @@ export const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ from
 
       {/* TODO: add the same hvoer effect as for pin in LocationCard */}
       {/* TODO: add redirect to /plan-trip-page and pass correct query parameters to URL */}
-      <button className="absolute bottom-4 right-4 hidden group-hover:grid place-items-center h-10 w-10 rounded-full z-10 shadow-md bg-lighterpink">
+      <button className="absolute bottom-4 right-4 hidden group-hover/out:grid place-items-center h-10 w-10 rounded-full z-10 shadow-md bg-lighterpink">
         <ExternalLink size={20} />
       </button>
 
-      {/* TODO: create pin label (same as "+ Add") */}
+      {!pinned && onPin && (
+        <button
+          onClick={() => onPin(from, to)}
+          className="hidden absolute group/in -top-1 -right-1 h-6 w-6 bg-blue-800 group-hover/out:grid place-items-center text-white rounded-full hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
+        >
+          <div className="group-hover/in:hidden">
+            <Bookmark size={12} />
+          </div>
+          <div className="hidden group-hover/in:block text-blue-800">
+            <Check size={18} />
+          </div>
+        </button>
+      )}
+
+      {pinned && onPin && (
+        <button
+          onClick={() => onPin(from, to)}
+          className="absolute -top-1 -right-1 h-6 w-6 bg-blue-800 grid place-items-center text-white rounded-full group/in hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
+        >
+          <div className="group-hover/in:hidden">
+            <Bookmark size={12} />
+          </div>
+          <div className="hidden group-hover/in:block text-blue-800">
+            <X size={18} />
+          </div>
+        </button>
+      )}
     </div>
   )
 }

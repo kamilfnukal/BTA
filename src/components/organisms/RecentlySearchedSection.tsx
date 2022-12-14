@@ -1,6 +1,8 @@
 import clsx from 'clsx'
+import { useSession } from 'next-auth/react'
 import { useState, useCallback } from 'react'
-import { useRecentlySearched } from '../../hooks/planTrip'
+import { useRecentlySearched, useUpdateRecentlySearchedPinned } from '../../hooks/planTrip'
+import { Coord } from '../../types'
 import { RecentlySearchedCard } from '../molecules'
 
 type RecentlySearchedSectionProps = {
@@ -8,8 +10,18 @@ type RecentlySearchedSectionProps = {
 }
 
 export const RecentlySearchedSection: React.FC<RecentlySearchedSectionProps> = ({ extraWrapperClasses = '' }) => {
-  const { data: recentlySearchedTrips } = useRecentlySearched()
+  const { data: session } = useSession()
+  const { data: recentlySearchedTrips, refetch } = useRecentlySearched()
   const [limit, setLimit] = useState<number | null>(4)
+
+  const { mutate: pinTrip } = useUpdateRecentlySearchedPinned()
+
+  const onPin = useCallback(
+    (from: Coord & { name: string }, to: Coord & { name: string }) => {
+      pinTrip({ userEmail: session?.user?.email ?? '', from, to }, { onSuccess: () => refetch() })
+    },
+    [session]
+  )
 
   const onShowMore = useCallback(() => {
     setLimit(null)
@@ -20,7 +32,7 @@ export const RecentlySearchedSection: React.FC<RecentlySearchedSectionProps> = (
       <div className="grid grid-cols-2 gap-4">
         {(recentlySearchedTrips ? (limit ? recentlySearchedTrips.slice(0, limit) : recentlySearchedTrips) : []).map(
           (recentlySearched) => (
-            <RecentlySearchedCard {...recentlySearched} />
+            <RecentlySearchedCard {...recentlySearched} onPin={onPin} />
           )
         )}
       </div>
