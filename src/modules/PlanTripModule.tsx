@@ -53,7 +53,9 @@ const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLoc
         <LabeledInput label="Start from" placeholder="Brno - Veveří" id={START_FROM_INPUT_ID} Icon={Navigation} />
         <LabeledInput label="End of trip" placeholder="Brno - Botanická" id={END_AT_INPUT_ID} Icon={Navigation} />
 
-        {selectedAccident && <AccidentDetail accident={selectedAccident} />}
+        {selectedAccident && (
+          <AccidentDetail accident={selectedAccident} extraWrapperClasses="shadow-md border border-lighterblue" />
+        )}
       </div>
 
       <Formik initialValues={INITIAL_VALUES} onSubmit={() => undefined}>

@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { PlanTripPageProps } from '../../types'
 
 type AccidentDetailLineProps = {
@@ -16,14 +17,15 @@ const AccidentDetailLine: React.FC<AccidentDetailLineProps> = ({ title, value })
 
 type AccidentDetailProps = {
   accident: PlanTripPageProps['locationAccidents'][0][0]
+  extraWrapperClasses?: string
 }
 
-export const AccidentDetail: React.FC<AccidentDetailProps> = ({ accident }) => {
+export const AccidentDetail: React.FC<AccidentDetailProps> = ({ accident, extraWrapperClasses = '' }) => {
   const date = new Date(0)
   date.setMilliseconds(accident.datum)
 
   return (
-    <div className="shadow-md border border-lighterblue my-8 p-4 rounded flex flex-col space-y-3 justify-center">
+    <div className={clsx('my-8 p-4 rounded flex flex-col space-y-3 justify-center', extraWrapperClasses)}>
       <div className="flex space-x-2 items-baseline mb-2 border-b border-b-blue-800/50 pb-2">
         <h2 className="text-black/50">Detail nehody ze dne</h2>
         <div className="text-xl">{date.toLocaleDateString()}</div>
