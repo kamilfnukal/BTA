@@ -1,4 +1,5 @@
-import { Bookmark, Check, CheckCircle, ExternalLink, MapPin, X } from 'react-feather'
+import clsx from 'clsx'
+import { Bookmark, Check, CheckCircle, ExternalLink, Icon, MapPin, X } from 'react-feather'
 import { Coord } from '../../types'
 import { RecentlySearchedTrips } from '../../utils/firebase'
 import { FromToLine } from '../atoms'
@@ -15,6 +16,29 @@ const CoordsLine: React.FC<{ coord: Coord }> = ({ coord: { lat, lng } }) => {
       {/* TODO: Investigate if possible to have city here */}
       <span className="text-sm">Brno</span>
     </div>
+  )
+}
+
+const PinButton: React.FC<{ onPin: () => void; HoverIcon: Icon; showOnGroupHover?: boolean }> = ({
+  onPin,
+  HoverIcon,
+  showOnGroupHover = false
+}) => {
+  return (
+    <button
+      onClick={onPin}
+      className={clsx(
+        showOnGroupHover ? 'hidden group-hover/out:grid' : 'grid',
+        'absolute -top-1 -right-1 h-6 w-6 bg-blue-800 place-items-center text-white rounded-full group/in hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg'
+      )}
+    >
+      <div className="group-hover/in:hidden">
+        <Bookmark size={12} />
+      </div>
+      <div className="hidden group-hover/in:block text-blue-800">
+        <HoverIcon size={18} />
+      </div>
+    </button>
   )
 }
 
@@ -37,33 +61,9 @@ export const RecentlySearchedCard: React.FC<RecentlySearchedCardProps> = ({ id, 
         <ExternalLink size={20} />
       </button>
 
-      {!pinned && onPin && (
-        <button
-          onClick={() => onPin(from, to)}
-          className="hidden absolute group/in -top-1 -right-1 h-6 w-6 bg-blue-800 group-hover/out:grid place-items-center text-white rounded-full hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
-        >
-          <div className="group-hover/in:hidden">
-            <Bookmark size={12} />
-          </div>
-          <div className="hidden group-hover/in:block text-blue-800">
-            <Check size={18} />
-          </div>
-        </button>
-      )}
+      {!pinned && onPin && <PinButton showOnGroupHover HoverIcon={Check} onPin={() => onPin(from, to)} />}
 
-      {pinned && onPin && (
-        <button
-          onClick={() => onPin(from, to)}
-          className="absolute -top-1 -right-1 h-6 w-6 bg-blue-800 grid place-items-center text-white rounded-full group/in hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
-        >
-          <div className="group-hover/in:hidden">
-            <Bookmark size={12} />
-          </div>
-          <div className="hidden group-hover/in:block text-blue-800">
-            <X size={18} />
-          </div>
-        </button>
-      )}
+      {pinned && onPin && <PinButton onPin={() => onPin(from, to)} HoverIcon={X} />}
     </div>
   )
 }

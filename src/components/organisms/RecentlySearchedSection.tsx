@@ -27,14 +27,14 @@ export const RecentlySearchedSection: React.FC<RecentlySearchedSectionProps> = (
     setLimit(null)
   }, [])
 
+  const trips = recentlySearchedTrips?.sort((a, b) => (a.pinned ? -1 : b.pinned ? 1 : 0)) ?? []
+
   return (
     <div className={clsx(extraWrapperClasses, !limit && 'h-96 overflow-y-auto')}>
       <div className="grid grid-cols-2 gap-4">
-        {(recentlySearchedTrips ? (limit ? recentlySearchedTrips.slice(0, limit) : recentlySearchedTrips) : []).map(
-          (recentlySearched) => (
-            <RecentlySearchedCard {...recentlySearched} onPin={onPin} />
-          )
-        )}
+        {(limit ? trips.slice(0, 4) : trips).map((recentlySearched) => (
+          <RecentlySearchedCard {...recentlySearched} onPin={onPin} />
+        ))}
       </div>
       {recentlySearchedTrips && recentlySearchedTrips.length > 4 && limit && (
         <button
