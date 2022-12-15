@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import { PlanTripPageProps } from '../../types'
 import { BrnoBikeAccidentsResponse } from '../../types/api'
 import { Button } from '../atoms'
 
