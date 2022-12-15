@@ -119,7 +119,7 @@ export const TableToolbar = memo(({ accidents, week, setFieldValue }: TableToolb
             setFieldValue('day', new Date(e.target.value))
           }}
         />
-        <label htmlFor="day" className="absolute right-7">
+        <label htmlFor="day" className="absolute right-6">
           <Calendar size={18} />
         </label>
       </div>
