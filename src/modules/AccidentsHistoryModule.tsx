@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Fragment, useMemo, useState } from 'react'
+import React, { Fragment, PropsWithChildren, useCallback, useMemo, useState } from 'react'
 import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
@@ -8,8 +8,8 @@ import { BaseIconInput, Button, CustomTransition } from '../components/atoms'
 import { Listbox, Transition } from '@headlessui/react'
 import moment from 'moment'
 import { YEAR_OFFSET } from '../const'
-import { getWeeks } from '../utils'
-import { AccidentDetailModal } from '../components/organisms'
+import { filterAccidents, getWeeks } from '../utils'
+import { WithAccidentModal } from '../components/organisms'
 
 type TableDay = {
   date: Date
@@ -47,31 +47,27 @@ const getForecast = (temperature: number | string, accidentsCount: number) => {
 }
 
 const TableRow: React.FC<TableDay> = ({ date, accidents }) => {
-  const [isAccidentOpened, setIsAccidentOpened] = useState(false)
   const { data: temp } = useTemperature()
 
   const temperature = getTemperatrue(date, temp)
 
   return (
     <tr>
-      <th>{date.toLocaleDateString()}</th>
+      <td>{date.toLocaleDateString()}</td>
       <td>{temperature}</td>
       <td>{getForecast(temperature, accidents.length)}</td>
       <td className="flex justify-between items-center pr-10">
         <div>{accidents.length}</div>
         {accidents.length > 0 && (
-          <>
-            <Button
-              extraClasses="bg-lighterblue text-black px-3 py-1.5 rounded-lg min-h-0 h-auto border-none text-xs hover:bg-lightblue"
-              label="Detail"
-              onClick={() => setIsAccidentOpened(true)}
-            />
-            <AccidentDetailModal
-              accident={accidents[0].attributes}
-              isOpen={isAccidentOpened}
-              closeModal={() => setIsAccidentOpened(false)}
-            />
-          </>
+          <WithAccidentModal accident={accidents[0].attributes}>
+            {(onModalOpen) => (
+              <Button
+                extraClasses="bg-lighterblue text-black px-3 py-1.5 rounded-lg min-h-0 h-auto border-none text-xs hover:bg-lightblue"
+                label="Detail"
+                onClick={onModalOpen}
+              />
+            )}
+          </WithAccidentModal>
         )}
       </td>
     </tr>
@@ -83,7 +79,7 @@ const Table: React.FC<TableProps> = ({ days }) => (
     <table className="table table-zebra w-full">
       <thead className="[&>tr>th]:bg-lightpink">
         <tr>
-          <th className="flex items-center space-x-2 z-10">
+          <th className="flex items-center space-x-2 !z-10">
             <Calendar size={16} className="inline-block" />
             <span>Date</span>
           </th>
@@ -102,39 +98,44 @@ const Table: React.FC<TableProps> = ({ days }) => (
   </div>
 )
 
-type AccidentProps = {
-  date: Date
-  info: BrnoBikeAccidentsResponse[0]
+type AccidentCardProps = {
+  accident: BrnoBikeAccidentsResponse[0]
 }
 
-const Accident: React.FC<AccidentProps> = ({ date, info }) => {
-  return (
-    <div className="w-1/3">
-      <div className="mx-4 bg-gradient-to-tl from-lightblue to-lighterpink/70 p-6 rounded-lg">
-        <div className="flex space-x-4">
-          <Image src={DUMMY_BIKE} width={54} alt="Shoes" />
-          <div>
-            <h2 className="font-bold text-blue-800 text-lg">Accident in Brno</h2>
-            <div className="flex items-center space-x-2 text-blue-800">
-              <Calendar size={14} />
-              <div className="text-sm font-light">{date.toLocaleDateString()}</div>
-            </div>
-          </div>
-        </div>
+const AccidentCard: React.FC<AccidentCardProps> = ({ accident: { attributes } }) => {
+  const accidentDate = new Date(0)
+  accidentDate.setMilliseconds(attributes.datum)
 
-        <div className="mt-8 flex justify-between items-center text-blue-800">
-          <h3 className="text-lg font-semibold pl-2">Details</h3>
-          <div className="flex space-x-2 items-center rounded-lg px-2 py-1 hover:shadow hover:cursor-pointer">
-            <button className="">See more</button>
-            <ArrowRight size={14} />
+  return (
+    <WithAccidentModal accident={attributes}>
+      {(onModalOpen) => (
+        <div className="w-1/3 h-ful flex flex-col">
+          <div className="mx-4 shadow-lg p-6 rounded-lg grow">
+            <div className="flex space-x-4">
+              <Image src={DUMMY_BIKE} width={54} alt="Shoes" />
+              <div>
+                <h2 className="font-bold text-blue-800 text-lg">{attributes.nazev}</h2>
+                <div className="flex items-center space-x-2 text-black/50">
+                  <Calendar size={14} />
+                  <div className="text-sm font-light">{accidentDate.toLocaleDateString()}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-between items-center text-blue-800">
+              <h3 className="text-lg font-semibold pl-2">Příčina</h3>
+              <div className="flex space-x-2 items-center rounded-lg px-2 py-1 hover:shadow hover:cursor-pointer">
+                <button onClick={onModalOpen} className="">
+                  See more
+                </button>
+                <ArrowRight size={14} />
+              </div>
+            </div>
+            <div className="mt-2 pl-2 rounded-lg text-black bg-lighterblue px-4 py-2">{attributes.pricina}</div>
           </div>
         </div>
-        {/* TODO: restrict length of description to ?? */}
-        <div className="mt-2 py-2 px-4 shadow rounded-lg">
-          description description description description description description description
-        </div>
-      </div>
-    </div>
+      )}
+    </WithAccidentModal>
   )
 }
 
@@ -175,6 +176,12 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
     return weeks[selectedWeekIndex!].map((date) => ({ date, accidents: getDayAccidents(data, date) }))
   }, [selectedDay, selectedWeekIndex])
 
+  const queriedAccidents = useMemo(() => {
+    if (query.length < 3) return []
+
+    return filterAccidents(data, query).slice(0, 6)
+  }, [query])
+
   return (
     <div className="container mx-auto px-10">
       <div className="flex mb-14 space-x-10 text-base">
@@ -192,6 +199,7 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
             }}
           >
             <div>
+              {/* TODO: replace with Select */}
               <Listbox.Button className="flex items-center space-x-2 border-2 border-gray-200 rounded-lg bg-white pl-4 py-2 shadow">
                 <Calendar />
 
@@ -256,15 +264,14 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
         </div>
       </div>
 
-      <CustomTransition show={!!query && !showTable} afterLeave={() => setShowTable((v) => !v)}>
-        {/* TODO: Found accidents view */}
-        <div className="mt-12 flex gap-y-4 flex-wrap w-full -ml-4">
-          {[1, 2, 3, 4].map((v) => (
-            <Accident date={new Date()} info={{} as BrnoBikeAccidentsResponse[0]} />
+      <CustomTransition show={query.length > 2 && !showTable} afterLeave={() => setShowTable((v) => !v)}>
+        <div className="flex gap-y-4 flex-wrap w-full -ml-4">
+          {queriedAccidents.map((accident) => (
+            <AccidentCard accident={accident} />
           ))}
         </div>
       </CustomTransition>
-      <CustomTransition show={!query && showTable} afterLeave={() => setShowTable((v) => !v)}>
+      <CustomTransition show={query.length < 3 && showTable} afterLeave={() => setShowTable((v) => !v)}>
         <Table days={filteredDays} />
       </CustomTransition>
     </div>

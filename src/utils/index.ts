@@ -74,3 +74,11 @@ export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, lo
 
   return result
 }
+
+export const filterAccidents = (accidents: BrnoBikeAccidentsResponse, query: string) => {
+  return accidents.filter(
+    (x) =>
+      x.attributes.nazev?.toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
+      x.attributes.pricina?.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+  )
+}

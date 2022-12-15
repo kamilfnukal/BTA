@@ -1,2 +1,2 @@
-export * from './AccidentDetailModal'
+export * from './WithAccidentModal'
 export * from './RecentlySearchedSection'
