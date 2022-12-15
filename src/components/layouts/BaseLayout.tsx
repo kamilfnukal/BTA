@@ -23,20 +23,18 @@ const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
       <nav className="bg-lighterblue flex w-full items-center mb-10">
         <Image src={LOGO} alt="" className="mx-10 py-4" />
         <ul className="flex items-center space-x-10 container mx-auto px-10 grow">
-          {/* Selected link */}
           <li>
-            <NavLink href="/auth/home">
-              <>Home</>
-            </NavLink>
+            <NavLink href="/auth/home">Home</NavLink>
           </li>
           <li>
-            <NavLink href="/auth/accidents/history">
-              <>Accidents</>
-            </NavLink>
+            <NavLink href="/auth/accidents/history">Forecast</NavLink>
           </li>
-          <li className="bg-lightblue rounded px-4 py-2 shadow hover:shadow-md hover:cursor-pointer">
-            <Link href="/auth/accidents/plan-trip">Plan your next trip!</Link>
-          </li>
+          <Link
+            className="bg-lightblue rounded px-4 py-2 shadow hover:shadow-md hover:cursor-pointer"
+            href="/auth/accidents/plan-trip"
+          >
+            Plan your next trip!
+          </Link>
         </ul>
 
         {/* Profile */}

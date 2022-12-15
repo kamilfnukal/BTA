@@ -16,8 +16,8 @@ const INITIAL_VALUES: {
   day: Date | null
 } = {
   query: '',
-  week: null,
-  day: new Date()
+  week: 1,
+  day: null
 }
 
 const AccidentCardsSection: React.FC<{ accidents: BrnoBikeAccidentsResponse }> = ({ accidents }) => {
