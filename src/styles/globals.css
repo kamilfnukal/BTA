@@ -21,3 +21,19 @@
 .smap-suggest li .image {
   @apply !flex !items-center !justify-center;
 }
+
+input[type='date'] {
+  @apply w-full;
+}
+
+input[type='date']::-webkit-date-and-time-value {
+  @apply w-full text-left;
+}
+
+input[type='date']:focus {
+  @apply outline-0;
+}
+
+::-webkit-calendar-picker-indicator {
+  @apply z-10 opacity-0 ml-8;
+}

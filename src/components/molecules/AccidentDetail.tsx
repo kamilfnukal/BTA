@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { PlanTripPageProps } from '../../types'
+import { BrnoBikeAccidentsResponse } from '../../types/api'
 import { Button } from '../atoms'
 
 type AccidentDetailLineProps = {
@@ -17,7 +17,7 @@ const AccidentDetailLine: React.FC<AccidentDetailLineProps> = ({ title, value })
 }
 
 type AccidentDetailProps = {
-  accident: PlanTripPageProps['locationAccidents'][0][0]
+  accident: BrnoBikeAccidentsResponse[0]['attributes']
   onClose?: () => void
   extraWrapperClasses?: string
 }

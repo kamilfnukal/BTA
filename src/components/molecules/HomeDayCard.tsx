@@ -1,11 +1,12 @@
 import clsx from 'clsx'
 import Image from 'next/image'
-import { useState } from 'react'
 import { Sun, Umbrella } from 'react-feather'
-import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../../const/api'
-import { HomeModuleDayProps } from '../../types'
+
 import { Button } from '../atoms'
-import { AccidentDetailModal } from '../organisms'
+import { WithAccidentModal } from '../organisms'
+
+import { HomeModuleDayProps } from '../../types'
+import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../../const/api'
 
 import BIKE from '../../../public/home-images/bicycle.png'
 import BUS from '../../../public/home-images/bus.png'
@@ -25,13 +26,8 @@ const getImage = (temperature: number | string, precipitaion: number | string, a
 }
 
 const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accidents }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const closeModal = () => setIsOpen(false)
-
   const smaller = !!title
-
   const hasAccidents = accidents.length !== 0
-
   const imageSrc = getImage(temperature, precipitation, accidents.length)
 
   return (
@@ -74,20 +70,17 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
         )}
 
         {hasAccidents && (
-          <>
-            <div className="card-actions justify-end mt-4 mb-2">
-              <Button
-                extraClasses="bg-lightpurple/60 text-black border-none hover:bg-lightpurple"
-                onClick={() => setIsOpen(true)}
-                label="See Accident details!"
-              />
-            </div>
-            <AccidentDetailModal
-              accident={{ ...accidents[0].attributes, lat: accidents[0].geometry.x, lng: accidents[0].geometry.y }}
-              isOpen={isOpen}
-              closeModal={closeModal}
-            />
-          </>
+          <WithAccidentModal accident={accidents[0].attributes}>
+            {(onModalOpen) => (
+              <div className="card-actions justify-end mt-4 mb-2">
+                <Button
+                  extraClasses="bg-lightpurple/60 text-black border-none hover:bg-lightpurple"
+                  onClick={onModalOpen}
+                  label="See Accident details!"
+                />
+              </div>
+            )}
+          </WithAccidentModal>
         )}
       </div>
     </div>
