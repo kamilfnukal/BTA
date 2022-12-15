@@ -13,3 +13,7 @@ export const useBrnoBikeAccidents = () => {
     staleTime: 60
   })
 }
+
+export const filterAccidents = (accidents: BrnoBikeAccidentsResponse, query: string) => {
+  return accidents.filter(x => x.attributes.nazev.toLocaleLowerCase().includes(query.toLocaleLowerCase()) || x.attributes.pricina.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
+}
