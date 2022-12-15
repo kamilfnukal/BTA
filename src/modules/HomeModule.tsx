@@ -1,3 +1,5 @@
+import moment from 'moment'
+import { useState } from 'react'
 import { Calendar } from 'react-feather'
 import { HomeDayCard } from '../components/molecules'
 import { HomePageProps } from '../types'
@@ -8,8 +10,7 @@ const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => 
       <div className="container lg:px-10 flex flex-col w-full mx-auto relative">
         <div className="absolute bg-gradient-to-br from-lighterpink/80 to-lightpink rounded-lg py-2 px-4 -top-4 flex space-x-4 font-medium">
           <Calendar />
-          {/* TODO: Today's date */}
-          <span>17th November</span>
+          <span>{moment().format('Do MMMM')}</span>
         </div>
 
         <div className="flex justify-center w-full">

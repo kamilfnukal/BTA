@@ -3,8 +3,17 @@ import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { Button } from '../components/atoms'
+import { HeroCard, HeroStats } from '../components/molecules'
+import { YEAR_OFFSET } from '../const'
+import { getBrnoBikeAccidents } from '../hooks/accidents'
 
-const LandingPage: NextPage = () => {
+type LandingPageProps = {
+  accidentsThisMonth: number
+  accidentsThisYear: number
+  accidentsAllTime: number
+}
+
+const LandingPage: NextPage<LandingPageProps> = ({ accidentsAllTime, accidentsThisYear, accidentsThisMonth }) => {
   const { data } = useSession()
   const router = useRouter()
 
@@ -21,24 +30,11 @@ const LandingPage: NextPage = () => {
       <div className="hero min-h-screen bg-gradient-to-tl from-lighterblue/10 to-lighterblue">
         <div className="hero-content flex-col lg:flex-row-reverse w-full lg:gap-x-20">
           <div className="flex flex-col space-y-10">
-            {/* TODO: Extract to component HeroCard /molecules */}
-            <div className="card card-compact max-w-[384px] bg-base-100 shadow-xl">
-              <figure>
-                <img src="https://placeimg.com/400/225/arch" alt="Shoes" />
-              </figure>
-              <div className="card-body">
-                <h2 className="card-title">Thursday, 17th November</h2>
-                <p>Today it is completely safe to ride a bike. No accident will happen! 🔥</p>
-                <p>22 °C is comfortable for bike riding. Have fun!</p>
-                <div className="card-actions justify-end mt-4 mb-2">
-                  <Button
-                    extraClasses="bg-blue-800 border-none hover:bg-lighterblue hover:text-blue-800"
-                    onClick={() => signIn('google')}
-                    label="Sign in!"
-                  />
-                </div>
-              </div>
-            </div>
+            <HeroCard
+              header={'Thursday, 17th November'}
+              firstParagraph={'Today it is completely safe to ride a bike. No accident will happen! 🔥'}
+              secondParagraph={'22 °C is comfortable for bike riding. Have fun!'}
+            />
           </div>
 
           <div className="max-w-xl">
@@ -49,27 +45,23 @@ const LandingPage: NextPage = () => {
             </p>
 
             <h2 className="text-3xl pb-4 pt-4 font-semibold text-blue-800 mt-10">Accidents</h2>
-            {/* TODO: Extract to component HeroStats /molecules */}
-            <div className="stats stats-vertical lg:stats-horizontal shadow">
-              {/* TODO: Extract to component Stat /atoms */}
-              <div className="stat">
-                <div className="stat-title">This month</div>
-                <div className="stat-value">15</div>
-                <div className="stat-desc">↗︎ 1</div>
-              </div>
-
-              <div className="stat">
-                <div className="stat-title">This year</div>
-                <div className="stat-value">210</div>
-                <div className="stat-desc">↗︎ 12 (22%)</div>
-              </div>
-
-              <div className="stat">
-                <div className="stat-title">All time</div>
-                <div className="stat-value">1,312</div>
-                <div className="stat-desc">↘︎ 90 (14%)</div>
-              </div>
-            </div>
+            <HeroStats
+              thisMonth={{
+                title: 'This month',
+                value: accidentsThisMonth,
+                desc: '↗︎ 1'
+              }}
+              thisYear={{
+                title: 'This year',
+                value: accidentsThisYear,
+                desc: '↗︎ 12 (22%)'
+              }}
+              allTime={{
+                title: 'All time',
+                value: accidentsAllTime,
+                desc: '↘︎ 90 (14%)'
+              }}
+            />
 
             <div className="pt-8">
               <Button
@@ -85,15 +77,25 @@ const LandingPage: NextPage = () => {
   )
 }
 
-// TODO: Fetch data about accidents and filter it
+//Fetch data about accidents and filter it
 //  - accidents this month
 //  - accidents this year
 //  - accidents all time
 // and return count for each (because we just display counts)
 // (You can reuse the logic from src/pages/auth/home)
 export const getStaticProps: GetStaticProps = async () => {
+  const now = new Date()
+  const year = now.getFullYear() - YEAR_OFFSET
+  const month = now.getMonth()
+
+  const accidents = await getBrnoBikeAccidents()
+
   return {
-    props: {}
+    props: {
+      accidentsThisMonth: accidents.filter(({ attributes: { mesic, rok } }) => mesic === month && rok === year).length,
+      accidentsThisYear: accidents.filter(({ attributes: { rok } }) => rok === year).length,
+      accidentsAllTime: accidents.length
+    }
   }
 }
 
