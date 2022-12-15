@@ -37,7 +37,7 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
           src={imageSrc}
           width={220}
           alt="bike"
-          className={clsx('rounded-t-lg object-cover', imageSrc === BUS && 'py-10 w-64')}
+          className={clsx('rounded-t-lg object-cover', imageSrc !== BIKE && 'py-10 w-64')}
         />
       </div>
       <div className={clsx('card-body', !hasAccidents && '!pb-10')}>
@@ -60,7 +60,7 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
           <>
             <p>Weather looks fine, it should be comfortable to ride a bike!</p>
             <p className="text-red-600 text-lg">
-              <span className="text-2xl">{2} </span>accidents are going to happen!
+              <span className="text-2xl">1 </span>accident is going to happen!
             </p>
           </>
         ) : (

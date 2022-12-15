@@ -2,6 +2,7 @@ import moment from 'moment'
 import { useState } from 'react'
 import { Calendar } from 'react-feather'
 import { HomeDayCard } from '../components/molecules'
+import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../const/api'
 import { HomePageProps } from '../types'
 
 const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => {
@@ -19,7 +20,7 @@ const HomeModule: React.FC<HomePageProps> = ({ yesterday, today, tomorrow }) => 
 
         <div className="flex w-full space-x-20">
           <HomeDayCard {...yesterday} title="Yesterday" />
-          <HomeDayCard {...today} />
+          <HomeDayCard {...today} accidents={[EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE]} />
           <HomeDayCard {...tomorrow} title="Tomorrow" />
         </div>
       </div>
