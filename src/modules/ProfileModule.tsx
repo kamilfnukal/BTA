@@ -2,69 +2,83 @@ import CITY from '../../public/city4.jpeg'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useAddUserLocation, useRemoveUserLocation, useUserLocations } from '../hooks/location'
-import { useCallback, useState } from 'react'
-import { LocationCard, RecentlySearchedCard } from '../components/molecules'
-import { Plus, Search } from 'react-feather'
-import { BaseIconInput, CustomTransition, InputLabel } from '../components/atoms'
+import { useCallback } from 'react'
+import { LocationCard } from '../components/molecules'
+import { Tag } from 'react-feather'
+import { BaseIconInput, BaseSelect, Button } from '../components/atoms'
 import { Location } from '../utils/firebase'
-import { useRecentlySearched } from '../hooks/planTrip'
+import { RecentlySearchedSection } from '../components/organisms'
+import { Formik } from 'formik'
 
-type AddLocationSelectProps = {
+type AddLocationFormProps = {
   locations: Location[]
 }
 
-const AddLocationSelect: React.FC<AddLocationSelectProps> = ({ locations }) => {
+const INITIAL_VALUES: {
+  location: string
+  note: string
+} = {
+  location: '',
+  note: ''
+}
+
+const AddLocationForm: React.FC<AddLocationFormProps> = ({ locations }) => {
   const { data: session } = useSession()
-  const [query, setQuery] = useState('')
   const { mutate: addUserLocation } = useAddUserLocation()
   const { refetch } = useUserLocations()
 
-  const onAddLocation = useCallback(
-    (locationId: string) => {
+  const onFormSubmit = useCallback(
+    ({ location, note }: typeof INITIAL_VALUES, { resetForm }: { resetForm: () => void }) => {
       addUserLocation(
-        /* TODO: get note from somewhere */
-        { userEmail: session?.user?.email ?? '', locationId, note: 'School' },
+        { userEmail: session?.user?.email ?? '', locationId: location, note },
         {
           onSuccess: () => {
             refetch()
-            setQuery('')
+            resetForm()
           }
         }
       )
     },
-    [addUserLocation, session]
+    [session]
   )
 
   return (
-    <div className="flex items-center space-x-6 w-full z-10">
-      <InputLabel label="Add another" />
-      <div className="relative w-full">
-        <BaseIconInput
-          Icon={Search}
-          id="all-location-search"
-          placeholder="Search for locations..."
-          extraWrapperClasses="grow"
-          onChange={(e) => setQuery(e.target.value)}
-          value={query}
-        />
-        <CustomTransition show={query !== ''} afterLeave={() => undefined}>
-          <div className="absolute top-12 bg-white w-full rounded py-4 shadow-xl flex flex-col">
-            {locations.map(({ name, image, id }) => (
-              <button
-                onClick={() => onAddLocation(id)}
-                className="flex space-x-4 items-center px-4 py-1 hover:bg-lightpurple/50 hover:cursor-pointer group"
-              >
-                <Image src={image === '' ? CITY : image} width={32} height={32} alt="" className="h-8 w-8 rounded-lg" />
-                <span className="text-lg text-left grow">{name}</span>
-                <div className="hidden shadow-lg items-center space-x-1 group-hover:flex bg-lighterpink px-2 py-1 rounded-lg text-xs">
-                  <Plus size={14} />
-                  <span>Add</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </CustomTransition>
-      </div>
+    <div className="flex items-center space-x-2 w-full z-10 mb-6">
+      <Formik initialValues={INITIAL_VALUES} onSubmit={onFormSubmit}>
+        {({ values, submitForm, setFieldValue }) => (
+          <>
+            <BaseSelect
+              fieldName="location"
+              options={locations.map(({ id, name }) => ({ id, name }))}
+              getValue={() =>
+                values.location ? (
+                  locations.find(({ id }) => id === values.location)?.name ?? ''
+                ) : (
+                  <span className="text-black/40">'Brno - Lůžánky'</span>
+                )
+              }
+              extraWrapperClasses="grow"
+              extraButtonClasses="w-full"
+            />
+
+            <BaseIconInput
+              id="note"
+              onChange={(e) => setFieldValue('note', e.target.value)}
+              Icon={Tag}
+              value={values.note}
+              placeholder="School"
+              note={<span className="text-black/50 text-xs">Label your location</span>}
+              extraWrapperClasses="w-1/3"
+            />
+
+            <Button
+              label="Add"
+              onClick={submitForm}
+              extraClasses="min-h-0 h-auto py-3 shadow-lg bg-blue-800 hover:bg-lighterblue hover:border hover:border-blue-800 hover:text-blue-800"
+            />
+          </>
+        )}
+      </Formik>
     </div>
   )
 }
@@ -97,35 +111,6 @@ const UserPreferredLocations = () => {
   )
 }
 
-const RecentlySearchedLocations = () => {
-  const { data: recentlySearchedTrips } = useRecentlySearched()
-  const [limit, setLimit] = useState<number | null>(4)
-
-  const onShowMore = useCallback(() => {
-    setLimit(null)
-  }, [])
-
-  return (
-    <>
-      <div className="grid grid-cols-2 gap-4">
-        {(recentlySearchedTrips ? (limit ? recentlySearchedTrips.slice(0, limit) : recentlySearchedTrips) : []).map(
-          (recentlySearched) => (
-            <RecentlySearchedCard {...recentlySearched} />
-          )
-        )}
-      </div>
-      {recentlySearchedTrips && recentlySearchedTrips.length > 4 && limit && (
-        <button
-          onClick={onShowMore}
-          className="text-sm mt-3 py-1 border border-lighterblue w-full shadow-md rounded-lg hover:bg-lighterblue/50 hover:border-lighterblue"
-        >
-          Show more
-        </button>
-      )}
-    </>
-  )
-}
-
 const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLocations }) => {
   const { data: session } = useSession()
 
@@ -153,7 +138,7 @@ const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLoca
               <h2 className="text-2xl font-semibold my-6">Your preferred locations</h2>
               <div className="flex flex-col">
                 <div className="flex w-full">
-                  <AddLocationSelect locations={definedLocations} />
+                  <AddLocationForm locations={definedLocations} />
                 </div>
 
                 <UserPreferredLocations />
@@ -163,7 +148,7 @@ const ProfileModule: React.FC<{ definedLocations: Location[] }> = ({ definedLoca
             {/* Right part */}
             <div className="w-1/2">
               <h2 className="text-2xl font-semibold my-6">Recently searched trips</h2>
-              <RecentlySearchedLocations />
+              <RecentlySearchedSection />
             </div>
           </div>
         </div>

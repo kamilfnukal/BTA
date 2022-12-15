@@ -1,5 +1,5 @@
 import { BrnoBikeAccidentsResponse } from '../types/api'
-import { Location, UserLocation } from './firebase'
+import { Location } from './firebase'
 
 export const setListener = (isReady: () => any, onReady: () => void) => {
   const readyListener = (): NodeJS.Timeout | undefined => {
@@ -73,4 +73,12 @@ export const getAccidentsInLocations = (accidents: BrnoBikeAccidentsResponse, lo
     .map(({ attributes, geometry }) => ({ ...attributes, lat: geometry.y, lng: geometry.x }))
 
   return result
+}
+
+export const filterAccidents = (accidents: BrnoBikeAccidentsResponse, query: string) => {
+  return accidents.filter(
+    (x) =>
+      x.attributes.nazev?.toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
+      x.attributes.pricina?.toLocaleLowerCase().includes(query.toLocaleLowerCase())
+  )
 }

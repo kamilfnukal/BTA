@@ -47,20 +47,6 @@ export const LocationCard: React.FC<LocationCardProps> = ({ onRemove, pinned = f
           <span className="text-sm">Remove</span>
         </button>
       </div>
-
-      {pinned && onPin && (
-        <button
-          onClick={() => onPin(location.id)}
-          className="absolute -top-1 -right-1 h-6 w-6 bg-blue-800 grid place-items-center text-white rounded-full group hover:translate-x-2 hover:-translate-y-2 hover:duration-200 hover:h-8 hover:w-8 hover:bg-lighterblue hover:border hover:border-blue-800/30 hover:shadow-lg"
-        >
-          <div className="group-hover:hidden">
-            <Bookmark size={12} />
-          </div>
-          <div className="hidden group-hover:block text-blue-800">
-            <X size={18} />
-          </div>
-        </button>
-      )}
     </div>
   )
 }
