@@ -32,7 +32,7 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
 
   const hasAccidents = accidents.length !== 0
 
-  const imageSrc = getImage(temperature, precipitation, 1)
+  const imageSrc = getImage(temperature, precipitation, accidents.length)
 
   return (
     <div className="card card-compact bg-base-100 shadow-xl rounded-t-xl">
@@ -41,10 +41,7 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
           src={imageSrc}
           width={220}
           alt="bike"
-          className={clsx(
-            'rounded-t-lg object-cover'
-            // imageSrc !== BIKE && 'h-40 object-bottom object-cover'
-          )}
+          className={clsx('rounded-t-lg object-cover', imageSrc === BUS && 'py-10 w-64')}
         />
       </div>
       <div className={clsx('card-body', !hasAccidents && '!pb-10')}>
