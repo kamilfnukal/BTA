@@ -82,11 +82,7 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
                 label="See Accident details!"
               />
             </div>
-            <AccidentDetailModal
-              accident={{ ...accidents[0].attributes, lat: accidents[0].geometry.x, lng: accidents[0].geometry.y }}
-              isOpen={isOpen}
-              closeModal={closeModal}
-            />
+            <AccidentDetailModal accident={accidents[0].attributes} isOpen={isOpen} closeModal={closeModal} />
           </>
         )}
       </div>

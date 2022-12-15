@@ -4,15 +4,16 @@ import { ArrowRight, Calendar, Search } from 'react-feather'
 import { useTemperature } from '../hooks/weather'
 import { BrnoBikeAccidentsResponse, WeatherTemperatureResponse } from '../types/api'
 import DUMMY_BIKE from '../../public/Blue-bike.svg'
-import { BaseIconInput, CustomTransition } from '../components/atoms'
+import { BaseIconInput, Button, CustomTransition } from '../components/atoms'
 import { Listbox, Transition } from '@headlessui/react'
 import moment from 'moment'
 import { YEAR_OFFSET } from '../const'
 import { getWeeks } from '../utils'
+import { AccidentDetailModal } from '../components/organisms'
 
 type TableDay = {
   date: Date
-  accidentsCount: number
+  accidents: BrnoBikeAccidentsResponse
 }
 
 type TableProps = {
@@ -45,42 +46,61 @@ const getForecast = (temperature: number | string, accidentsCount: number) => {
   return `It's not going to be cold, but ${accidentsCount} accidents are expected. Be carefoul! 🙏`
 }
 
-const Table: React.FC<TableProps> = ({ days }) => {
+const TableRow: React.FC<TableDay> = ({ date, accidents }) => {
+  const [isAccidentOpened, setIsAccidentOpened] = useState(false)
   const { data: temp } = useTemperature()
 
+  const temperature = getTemperatrue(date, temp)
+
   return (
-    <div className="overflow-x-auto shadow-md">
-      <table className="table table-zebra w-full">
-        <thead className="[&>tr>th]:bg-lightpink">
-          <tr>
-            <th className="flex items-center space-x-2">
-              <Calendar size={16} className="inline-block" />
-              <span>Date</span>
-            </th>
-            {/* TODO: icons? */}
-            <th>Temperature</th>
-            <th>Forecast</th>
-            <th>Accidents count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {days.map(({ date, accidentsCount }) => {
-            const temperature = getTemperatrue(date, temp)
-            return (
-              <tr>
-                <th>{date.toLocaleDateString()}</th>
-                <td>{temperature}</td>
-                <td>{getForecast(temperature, accidentsCount)}</td>
-                {/* TODO: style + "Get details ->" button */}
-                <td>{accidentsCount}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+    <tr>
+      <th>{date.toLocaleDateString()}</th>
+      <td>{temperature}</td>
+      <td>{getForecast(temperature, accidents.length)}</td>
+      <td className="flex justify-between items-center pr-10">
+        <div>{accidents.length}</div>
+        {accidents.length > 0 && (
+          <>
+            <Button
+              extraClasses="bg-lighterblue text-black px-3 py-1.5 rounded-lg min-h-0 h-auto border-none text-xs hover:bg-lightblue"
+              label="Detail"
+              onClick={() => setIsAccidentOpened(true)}
+            />
+            <AccidentDetailModal
+              accident={accidents[0].attributes}
+              isOpen={isAccidentOpened}
+              closeModal={() => setIsAccidentOpened(false)}
+            />
+          </>
+        )}
+      </td>
+    </tr>
   )
 }
+
+const Table: React.FC<TableProps> = ({ days }) => (
+  <div className="overflow-x-auto shadow-md">
+    <table className="table table-zebra w-full">
+      <thead className="[&>tr>th]:bg-lightpink">
+        <tr>
+          <th className="flex items-center space-x-2 z-10">
+            <Calendar size={16} className="inline-block" />
+            <span>Date</span>
+          </th>
+          {/* TODO: icons? */}
+          <th>Temperature</th>
+          <th>Forecast</th>
+          <th>Accidents count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {days.map((day) => (
+          <TableRow {...day} />
+        ))}
+      </tbody>
+    </table>
+  </div>
+)
 
 type AccidentProps = {
   date: Date
@@ -118,14 +138,14 @@ const Accident: React.FC<AccidentProps> = ({ date, info }) => {
   )
 }
 
-const getAccidentsCount = (accidents: BrnoBikeAccidentsResponse, date: Date) =>
+const getDayAccidents = (accidents: BrnoBikeAccidentsResponse, date: Date) =>
   accidents.filter(({ attributes: { datum } }) => {
     const accidentDate = new Date(0)
 
     // field `datum` is represented as miliseconds from epocha
     accidentDate.setMilliseconds(datum)
     return moment(date).isSame(accidentDate, 'day')
-  }).length
+  })
 
 const weeks = getWeeks(new Date().getFullYear() - YEAR_OFFSET)
 
@@ -148,11 +168,11 @@ const AccidentsHistoryModule: React.FC<Props> = ({ data }) => {
 
   const filteredDays = useMemo(() => {
     if (selectedDay) {
-      const accidentsCount = getAccidentsCount(data, selectedDay)
-      return [{ date: selectedDay, accidentsCount }]
+      const accidents = getDayAccidents(data, selectedDay)
+      return [{ date: selectedDay, accidents }]
     }
 
-    return weeks[selectedWeekIndex!].map((date) => ({ date, accidentsCount: getAccidentsCount(data, date) }))
+    return weeks[selectedWeekIndex!].map((date) => ({ date, accidents: getDayAccidents(data, date) }))
   }, [selectedDay, selectedWeekIndex])
 
   return (

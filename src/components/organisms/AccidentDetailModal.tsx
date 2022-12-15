@@ -1,11 +1,12 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
 import { PlanTripPageProps } from '../../types'
+import { BrnoBikeAccidentsResponse } from '../../types/api'
 import { Button } from '../atoms'
 import { AccidentDetail, CustomModal } from '../molecules'
 
 type AccidentDetailModalProps = {
-  accident: PlanTripPageProps['locationAccidents'][0][0]
+  accident: BrnoBikeAccidentsResponse[0]['attributes']
   isOpen: boolean
   closeModal: () => void
 }
