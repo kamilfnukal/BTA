@@ -5,7 +5,6 @@ import { Navigation } from 'react-feather'
 import { AccidentDetail, LabeledInput, MapToolbar, MapyczMap, RecentlySearchedCard } from '../components/molecules'
 import { RecentlySearchedSection } from '../components/organisms'
 import { END_AT_INPUT_ID, START_FROM_INPUT_ID, YEAR_OFFSET } from '../const'
-import { useRecentlySearched } from '../hooks/planTrip'
 import { PlanTripPageProps } from '../types'
 
 const INITIAL_VALUES = {
@@ -32,7 +31,6 @@ const getFilteredLocations = (
 const PlanTripModule: React.FC<PlanTripPageProps> = ({ locationAccidents, allLocations }) => {
   // TODO: read query parameters -- if they're there, pre-fill search fields and show route
   const router = useRouter()
-  const { data: recentlySearched } = useRecentlySearched()
 
   const [selectedAccidentId, setSelectedAccidentId] = useState<string | null>(null)
 
