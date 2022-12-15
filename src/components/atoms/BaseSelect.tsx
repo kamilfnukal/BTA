@@ -7,21 +7,28 @@ import { ChevronDown } from 'react-feather'
 type BaseSelectProps<T, K> = {
   options: T[]
   fieldName: keyof K
-  getValue?: () => string
+  getValue?: () => string | JSX.Element
   extraButtonClasses?: string
+  extraWrapperClasses?: string
+  onSelect?: (id: string) => void
 }
 
 export const BaseSelect = <T extends { id: string | number; name: string }, K extends { [key: string]: string }>({
   fieldName,
   options,
   getValue,
-  extraButtonClasses = ''
+  extraButtonClasses = '',
+  extraWrapperClasses = '',
+  onSelect
 }: BaseSelectProps<T, K>) => {
   const { values, setFieldValue } = useFormikContext<K>()
 
   return (
-    <Listbox value={values[fieldName]} onChange={(locationId) => setFieldValue(fieldName as string, locationId)}>
-      <div className="relative">
+    <Listbox
+      value={values[fieldName]}
+      onChange={(locationId) => (onSelect ? onSelect(locationId) : setFieldValue(fieldName as string, locationId))}
+    >
+      <div className={clsx('relative', extraWrapperClasses)}>
         <Listbox.Button
           className={clsx(
             'py-2 pr-12 pl-4 border-2 border-gray-200 rounded-lg bg-white shadow appearance-none focus-visible:outline-none relative',
