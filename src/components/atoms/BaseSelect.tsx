@@ -11,6 +11,7 @@ type BaseSelectProps<T, K> = {
   extraButtonClasses?: string
   extraWrapperClasses?: string
   onSelect?: (id: string) => void
+  customOption?: (option: T) => JSX.Element
 }
 
 export const BaseSelect = <T extends { id: string | number; name: string }, K extends { [key: string]: string }>({
@@ -19,7 +20,8 @@ export const BaseSelect = <T extends { id: string | number; name: string }, K ex
   getValue,
   extraButtonClasses = '',
   extraWrapperClasses = '',
-  onSelect
+  onSelect,
+  customOption
 }: BaseSelectProps<T, K>) => {
   const { values, setFieldValue } = useFormikContext<K>()
 
@@ -51,7 +53,7 @@ export const BaseSelect = <T extends { id: string | number; name: string }, K ex
                 }
                 value={location.id}
               >
-                {location.name}
+                {customOption ? customOption(location) : location.name}
               </Listbox.Option>
             ))}
           </Listbox.Options>
