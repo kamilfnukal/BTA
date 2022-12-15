@@ -10,7 +10,7 @@ import { EXAMPLE_BRNO_BIKE_ACCIDENT_RESPONSE } from '../../const/api'
 
 import BIKE from '../../../public/home-images/bicycle.png'
 import BUS from '../../../public/home-images/bus.png'
-import CAR from '../../../public/home-images/car.jpeg'
+import CAR from '../../../public/home-images/car.png'
 
 type CardProps = HomeModuleDayProps & {
   title?: string
@@ -31,12 +31,13 @@ const Card: React.FC<CardProps> = ({ temperature, precipitation, title, accident
   const imageSrc = getImage(temperature, precipitation, accidents.length)
 
   return (
-    <div className="card card-compact bg-base-100 shadow-xl rounded-t-lg">
-      <div>
+    <div className="card card-compact bg-base-100 shadow-xl rounded-t-xl">
+      <div className="grid place-items-center py-4 bg-gradient-to-tl from-lighterblue/50 to-lightblue/80 rounded-t-xl">
         <Image
           src={imageSrc}
+          width={220}
           alt="bike"
-          className={clsx('rounded-t-lg w-full object-bottom object-cover', title && 'h-40 object-bottom object-cover')}
+          className={clsx('rounded-t-lg object-cover', imageSrc === BUS && 'py-10 w-64')}
         />
       </div>
       <div className={clsx('card-body', !hasAccidents && '!pb-10')}>
